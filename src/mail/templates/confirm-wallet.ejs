@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <%- include('./head.ejs') %>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    .wrapper {
+      padding: 60px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #a2a2a7;
+    }
+    .header {
+      width: 100%;
+      padding: 10px 0px;
+      background: #2a3042;
+      border-radius: 12px;
+      max-width: 513px;
+    }
+    .header__img {
+      max-width: 126px;
+      width: 100%;
+      margin-left: 15px;
+    }
+    .content {
+      background: #2a3042;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 513px;
+      margin-top: 20px;
+      border-radius: 24px;
+      padding: 0px;
+    }
+    .content__header {
+      padding: 10px;
+      text-align: center;
+    }
+    .content__header img {
+      max-width: 130px;
+      width: 100%;
+    }
+    .content__title {
+      font-style: normal;
+      font-weight: 600;
+      font-size: 23px;
+      line-height: 34px;
+      color: #000000;
+    }
+    .content__body {
+      text-align: center;
+      background: white;
+      padding: 15px 0;
+      border-radius: 0px 0px 24px 24px;
+    }
+    .content__text {
+      max-width: 400px;
+      padding: 0 15px;
+      margin: 0 auto;
+      font-style: normal;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 17px;
+      letter-spacing: 0.04em;
+
+      color: #000000;
+    }
+    .btn-secondary {
+      display: block;
+      max-width: 210px;
+      width: 100%;
+      text-decoration: none;
+      color: white;
+      margin: 0 auto;
+      text-align: center;
+      display: block;
+      cursor: pointer;
+      padding: 10px 0;
+      background: #34c38f;
+      border-radius: 13px;
+    }
+  </style>
+  <body>
+    <div class="wrapper">
+      <div class="content">
+        <div class="content__header">
+          <img src="http://dashboard.mcplatform.net/logo.png" alt="" />
+        </div>
+        <div class="content__body">
+          <div class="content__title">MCapital Platform</div>
+          <div class="content__text">
+            Здравствуйте!<br />
+            Вы запрашивали изменение кошелька по умолчанию с <%= locals.old_wallet %> на следующий
+            адрес: <%= locals.new_wallet %>. Чтобы подтвердить операцию перейдите по ссылке.
+          </div>
+          <div>
+            <div class="mt20 mb20">
+              <a class="btn btn-secondary" href="<%= locals.url %>"> Подтвердить смену кошелька </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
