@@ -132,7 +132,9 @@ export class UsersService extends BaseEntityService<User, UserFilter> {
   async getDepositAmountByUserId(userId: number) {
     let result = 0;
     const rows = await this.entityManager.query(
-      `SELECT "currency_amount" FROM public.deposit WHERE "userId" = ${userId}`,
+      `SELECT "currency_amount"
+       FROM public.deposit
+       WHERE "userId" = ${userId}`,
     );
 
     for (const row of rows) {
@@ -169,6 +171,7 @@ export class UsersService extends BaseEntityService<User, UserFilter> {
       }),
     );
   }
+
   // async getReferrals(referrerId: string): Promise<User[]> {
   //   // this function can be optimized with plpgsql
   //   // const directReferrals = await this.entityManager.find(User, {
@@ -218,7 +221,9 @@ export class UsersService extends BaseEntityService<User, UserFilter> {
     for (const referral of referrals) {
       if (referral.level === 0 && referral.deposit_amount === 0) {
         ++result[0];
-      } else ++result[referral.level + 1];
+      } else {
+        ++result[referral.level + 1];
+      }
     }
 
     return result;
@@ -260,6 +265,7 @@ export class UsersService extends BaseEntityService<User, UserFilter> {
 
     return resultItems.sort((a, b) => a[0] - b[0]);
   }
+
   // filterChartsDataToOneDateValue(items: [number, number][]) {
   //   console.log(items);
 
@@ -319,7 +325,7 @@ export class UsersService extends BaseEntityService<User, UserFilter> {
           )
           .select('sum (calculation.amount) as earn_amount')
           .where('deposit.userId = :userId', { userId: user.id })
-          .andWhere("product_service_description Like 'basic_'")
+          .andWhere('product_service_description Like \'basic_\'')
           .getRawOne()) as { earn_amount: null | string }
       )?.earn_amount ?? 0;
 
@@ -329,7 +335,7 @@ export class UsersService extends BaseEntityService<User, UserFilter> {
           .createQueryBuilder(Deposit, 'deposit')
           .select('sum (deposit.currency_amount) as earn_amount')
           .where('deposit.userId = :userId', { userId: user.id })
-          .andWhere("product_service_description Like 'basic_'")
+          .andWhere('product_service_description Like \'basic_\'')
           .getRawOne()) as { earn_amount: null | string }
       )?.earn_amount ?? 0;
     console.log(earnBasicAmount, currencyBasicAmount);
@@ -339,15 +345,15 @@ export class UsersService extends BaseEntityService<User, UserFilter> {
       .createQueryBuilder(Deposit, 'deposit')
       .select('sum(earn_amount-currency_amount) as earn_amount')
       .where('deposit.userId = :userId', { userId: user.id })
-      .andWhere("product_service_description Like 'investor_%'")
-      .andWhere("product_service_description not like 'investor_pro%'")
+      .andWhere('product_service_description Like \'investor_%\'')
+      .andWhere('product_service_description not like \'investor_pro%\'')
       .getRawOne();
 
     const fromInvestorPro: { earn_amount: string | null } = await this.entityManager
       .createQueryBuilder(Deposit, 'deposit')
       .select('sum(earn_amount-currency_amount) as earn_amount')
       .where('deposit.userId = :userId', { userId: user.id })
-      .andWhere("product_service_description Like 'investor_pro%'")
+      .andWhere('product_service_description Like \'investor_pro%\'')
       .getRawOne();
 
     const teamData = await this.entityManager.findOne(Team, {
@@ -488,15 +494,24 @@ export class UsersService extends BaseEntityService<User, UserFilter> {
 
     return user;
   }
+
   async getMaxLevelUser() {
     const userWithMaxLevel = await this.entityManager.query('SELECT MAX(level) FROM public.user');
     return userWithMaxLevel[0].max;
   }
 
   async getUserProfileData(user: User) {
-    const userData = (await this.entityManager.findOne(User, user.id, {
+    const userData = await this.entityManager.findOne(User, user.id, {
       relations: ['role'],
-    })) as IUserDataWithRole;
+    }) as IUserDataWithRole;
+
+    const partnerData = await this.entityManager
+      .createQueryBuilder(User, 'user')
+      .select()
+      .where('"partnerId" = :partnerId', { partnerId: userData.referrerId })
+      .getOne();
+
+
     const baseDepositLevel = await this.getCurrentBasePackage(user);
     const { needToAllStructure, needToFirstStructure } = await this.getToTheNextLevelData(
       user.id,
@@ -507,6 +522,7 @@ export class UsersService extends BaseEntityService<User, UserFilter> {
       needToAllStructure,
       needToFirstStructure,
       ...new ReturnUserDto(userData),
+      referrerName: partnerData?.fullName
     };
   }
 
@@ -523,11 +539,12 @@ export class UsersService extends BaseEntityService<User, UserFilter> {
       const [needToAlLStructure] = Object.entries(allStructureLevels).find(
         ([, value]) => value === userLevel + 1,
       );
-      if (!teamData)
+      if (!teamData) {
         return {
           needToAllStructure: { percent: 0, value: +needToAlLStructure },
           needToFirstStructure: { percent: 0, value: +needToFirstStructure },
         };
+      }
 
       const firstDifference = +needToFirstStructure - +teamData.firstDeposit;
       const allDifference = +needToAlLStructure - +teamData.teamDeposit;
@@ -577,13 +594,17 @@ export class UsersService extends BaseEntityService<User, UserFilter> {
   async getUserStructure(user: User, requestedPartnerId: string): Promise<TeamUserStructure> {
     const userReferrals = await this.getReferrals(user.partnerId);
     const isUserHaveAccess = userReferrals.find((user) => user.partnerId === requestedPartnerId);
-    if (!isUserHaveAccess) throw new ForbiddenException();
+    if (!isUserHaveAccess) {
+      throw new ForbiddenException();
+    }
     const { partnerId, fullName, agreement } = await this.entityManager.findOne(User, {
       where: {
         partnerId: requestedPartnerId,
       },
     });
-    if (+agreement !== 1) throw new ForbiddenException();
+    if (+agreement !== 1) {
+      throw new ForbiddenException();
+    }
     const referrals = await this.getReferrals(partnerId);
     const teamInfo = await this.entityManager.findOne(Team, {
       where: {
