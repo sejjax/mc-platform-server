@@ -83,25 +83,25 @@
     }
   </style>
   <body>
-    <div class="wrapper">
-      <div class="content">
-        <div class="content__header">
-          <img src="http://dashboard.mcplatform.net/logo.png" alt="" />
+  <div class="wrapper">
+    <div class="content">
+      <div class="content__header">
+        <img src="http://dashboard.mcplatform.net/logo.png" alt="" />
+      </div>
+      <div class="content__body">
+        <div class="content__title">MCapital Platform</div>
+        <div class="content__text">
+          Hello!<br />
+          You requested to change your default wallet from <%= locals.old_wallet %> to the following
+          address: <%= locals.new_wallet %>. To confirm the operation, please follow the link.
         </div>
-        <div class="content__body">
-          <div class="content__title">MCapital Platform</div>
-          <div class="content__text">
-            Здравствуйте!<br />
-            Вы запрашивали изменение кошелька по умолчанию с <%= locals.old_wallet %> на следующий
-            адрес: <%= locals.new_wallet %>. Чтобы подтвердить операцию перейдите по ссылке.
-          </div>
-          <div>
-            <div class="mt20 mb20">
-              <a class="btn btn-secondary" href="<%= locals.url %>"> Подтвердить смену кошелька </a>
-            </div>
+        <div>
+          <div class="mt20 mb20">
+            <a class="btn btn-secondary" href="<%= locals.url %>"> Confirm Wallet Change </a>
           </div>
         </div>
       </div>
     </div>
+  </div>
   </body>
 </html>
