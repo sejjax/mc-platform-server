@@ -4,6 +4,7 @@ import { Deposit } from 'src/user/deposit/entities/deposit.entity';
 import { User } from 'src/users/user.entity';
 import { Repository } from 'typeorm';
 import { InvestorProDepositAmountReponse } from './deposit.types';
+import {GetDepositDto} from "./dto/get-deposit.dto";
 
 @Injectable()
 export class DepositService {
@@ -12,13 +13,13 @@ export class DepositService {
     private depositRepo: Repository<Deposit>,
   ) {}
 
-  async findByUser(user: User): Promise<Deposit[]> {
+  async findByUser(user: User): Promise<GetDepositDto[]> {
     return (
       (await this.depositRepo.find({
         where: { user },
         order: { date: 'DESC' },
-      })) || ([] as Deposit[])
-    );
+      })) || []
+    ).map((it, idx) => ({...it, relativeId: idx})) as GetDepositDto[];
   }
 
   async getInvestorProAmountByUser(userId: number): Promise<InvestorProDepositAmountReponse> {
