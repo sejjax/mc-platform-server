@@ -4,7 +4,8 @@ import { Deposit } from 'src/user/deposit/entities/deposit.entity';
 import { User } from 'src/users/user.entity';
 import { Repository } from 'typeorm';
 import { InvestorProDepositAmountReponse } from './deposit.types';
-import {GetDepositDto} from "./dto/get-deposit.dto";
+import { GetDepositDto } from "./dto/get-deposit.dto";
+import { isDepositClosed } from "./helpers/isDepositClosed";
 
 @Injectable()
 export class DepositService {
@@ -19,7 +20,11 @@ export class DepositService {
         where: { user },
         order: { date: 'DESC' },
       })) || []
-    ).map((it, idx) => ({...it, relativeId: idx})) as GetDepositDto[];
+    ).map((it, idx) => ({
+      ...it,
+      relativeId: idx,
+      isClosed: isDepositClosed(it),
+    })) as GetDepositDto[];
   }
 
   async getInvestorProAmountByUser(userId: number): Promise<InvestorProDepositAmountReponse> {
