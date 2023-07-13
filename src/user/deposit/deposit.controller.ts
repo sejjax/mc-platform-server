@@ -19,18 +19,18 @@ export class DepositController {
   }
 
   @Get('/')
-  findMy(@Req() req: Request & { user: User }) {
+  async findMy(@Req() req: Request & { user: User }) {
     return this.depositService.findByUser(req.user);
+  }
+
+  @Get('/total-invested-amount')
+  async getTotalInvestedAmount(@AuthUser() user: User) {
+    return this.depositService.getTotalInvestedAmount(user);
   }
 
   @Get('/:id')
   async findByUserId(@AuthUser() user: User, @Param('id') id: string) {
     if (user.id !== +id) if (!user.isAdmin) throw new UnauthorizedException();
     return this.depositService.findByUser({ id: id } as unknown as User);
-  }
-
-  @Get('/total-invested-amount')
-  async getTotalInvestedAmount(@AuthUser() user: User) {
-    return this.depositService.getTotalInvestedAmount(user);
   }
 }
