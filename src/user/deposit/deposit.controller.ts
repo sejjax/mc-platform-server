@@ -28,4 +28,9 @@ export class DepositController {
     if (user.id !== +id) if (!user.isAdmin) throw new UnauthorizedException();
     return this.depositService.findByUser({ id: id } as unknown as User);
   }
+
+  @Get('/total-invested-amount')
+  async getTotalInvestedAmount(@AuthUser() user: User) {
+    return this.depositService.getTotalInvestedAmount(user);
+  }
 }

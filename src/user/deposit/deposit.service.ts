@@ -39,4 +39,12 @@ export class DepositService {
 
     return { allPackages, perUser };
   }
+
+  async getTotalInvestedAmount(user: User): Promise<number> {
+    const [{ sum }] = await this.depositRepo.query(
+        `select sum(d.currency_amount) from "user" u left outer join deposit d on u.id=d."userId" where u.id=$1 group by d.currency`,
+        [user.id]
+    ) as [{ sum: number }];
+    return sum;
+  }
 }
