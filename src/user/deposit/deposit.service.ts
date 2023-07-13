@@ -76,12 +76,7 @@ export class DepositService {
               where u.id=$1
             ) as "payReadyAmount"`,
         [user.id]
-    ) as [{ 
-      currentInvestmentAmount,
-      totalPayedAmount,
-      totalInvestedAmount,
-      payReadyAmount
-    }];
+    ) as [GetInvestmentSummaryDto];
     return {
       currentInvestmentAmount,
       totalPayedAmount,
