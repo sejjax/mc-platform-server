@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { InvestorProDepositAmountReponse } from './deposit.types';
 import { GetDepositDto } from "./dto/get-deposit.dto";
 import { isDepositClosed } from "./helpers/isDepositClosed";
-import { GetTotalInvestedAmountDto } from "./dto/get-total-invested-amount.dto";
+import { GetInvestmentSummaryDto } from "./dto/get-investment-summary.dto";
 import { GetLastMonthPassiveIncome } from "./dto/get-last-month-passive-income.dto";
 import { QueryResult } from "../../types/queryResult";
 
@@ -43,12 +43,51 @@ export class DepositService {
     return { allPackages, perUser };
   }
 
-  async getTotalInvestedAmount(user: User): Promise<GetTotalInvestedAmountDto> {
-    const [{ result }] = await this.depositRepo.query(
-        `select cast(coalesce(sum(d.currency_amount), 0) as int) as result from "user" u left outer join deposit d on u.id=d."userId" where u.id=$1 group by d.currency`,
+  async investmentSummary(user: User): Promise<GetInvestmentSummaryDto> {
+    const [{ 
+      currentInvestmentAmount,
+      totalPayedAmount,
+      totalInvestedAmount,
+      payReadyAmount
+    }] = await this.depositRepo.query(
+        `
+            select (
+              select cast(coalesce(sum(d.currency_amount), 0) as int)
+              from "user" u 
+              left outer join deposit d on u.id=d."userId" 
+              where d.status='calculated' and now() < d."date" + interval '1 week' * cast(d.ip_wks as int) and u.id=$1
+            ) as "currentInvestmentAmount",
+            (
+              select cast(coalesce(sum(wh.currency_amount), 0) as int)
+              from "user" u 
+              left outer join withdraw_history wh on u.id=wh."userId" 
+              where u.id=$1
+            ) as "totalPayedAmount",
+            (
+              select cast(coalesce(sum(d.currency_amount), 0) as int)
+              from "user" u 
+              left outer join deposit d on u.id=d."userId" 
+              where d.status='calculated' and u.id=$1
+            ) as "totalInvestedAmount",
+            (
+              select cast(coalesce(b.available_to_withdraw_balance, 0) as int)
+              from "user" u 
+              left outer join balance b on u.id=b."userId" 
+              where u.id=$1
+            ) as "payReadyAmount"`,
         [user.id]
-    ) as QueryResult<number>;
-    return {amount: result};
+    ) as [{ 
+      currentInvestmentAmount,
+      totalPayedAmount,
+      totalInvestedAmount,
+      payReadyAmount
+    }];
+    return {
+      currentInvestmentAmount,
+      totalPayedAmount,
+      totalInvestedAmount,
+      payReadyAmount
+    };
   }
 
   async lastMonthPassiveIncome(user: User): Promise<GetLastMonthPassiveIncome> {

@@ -5,7 +5,7 @@ import { DepositService } from 'src/user/deposit/deposit.service';
 import { User } from 'src/users/user.entity';
 import { AuthUser } from 'src/utils/decorators/auth-user.decorator';
 import { InvestorProDepositAmountReponse } from './deposit.types';
-import { GetTotalInvestedAmountDto } from "./dto/get-total-invested-amount.dto";
+import { GetInvestmentSummaryDto } from "./dto/get-investment-summary.dto";
 import { GetLastMonthPassiveIncome } from "./dto/get-last-month-passive-income.dto";
 
 @UseGuards(AuthGuard('jwt'))
@@ -25,9 +25,9 @@ export class DepositController {
     return this.depositService.findByUser(req.user);
   }
 
-  @Get('/total-invested-amount')
-  async getTotalInvestedAmount(@AuthUser() user: User): Promise<GetTotalInvestedAmountDto> {
-    return await this.depositService.getTotalInvestedAmount(user);
+  @Get('/investment-summary')
+  async getTotalInvestedAmount(@AuthUser() user: User): Promise<GetInvestmentSummaryDto> {
+    return await this.depositService.investmentSummary(user);
   }
 
   @Get('/passive-income/last-month')
