@@ -6,6 +6,7 @@ import { User } from 'src/users/user.entity';
 import { AuthUser } from 'src/utils/decorators/auth-user.decorator';
 import { InvestorProDepositAmountReponse } from './deposit.types';
 import { GetTotalInvestedAmountDto } from "./dto/get-total-invested-amount.dto";
+import { GetLastMonthPassiveIncome } from "./dto/get-last-month-passive-income.dto";
 
 @UseGuards(AuthGuard('jwt'))
 @ApiTags('User deposit history')
@@ -27,6 +28,11 @@ export class DepositController {
   @Get('/total-invested-amount')
   async getTotalInvestedAmount(@AuthUser() user: User): Promise<GetTotalInvestedAmountDto> {
     return await this.depositService.getTotalInvestedAmount(user);
+  }
+
+  @Get('/passive-income/last-month')
+  async lastMonthPassiveIncome(@AuthUser() user: User): Promise<GetLastMonthPassiveIncome> {
+    return await this.depositService.lastMonthPassiveIncome(user);
   }
 
   @Get('/:id')

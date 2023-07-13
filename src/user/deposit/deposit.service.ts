@@ -7,6 +7,8 @@ import { InvestorProDepositAmountReponse } from './deposit.types';
 import { GetDepositDto } from "./dto/get-deposit.dto";
 import { isDepositClosed } from "./helpers/isDepositClosed";
 import { GetTotalInvestedAmountDto } from "./dto/get-total-invested-amount.dto";
+import { GetLastMonthPassiveIncome } from "./dto/get-last-month-passive-income.dto";
+import { QueryResult } from "../../types/queryResult";
 
 @Injectable()
 export class DepositService {
@@ -42,10 +44,24 @@ export class DepositService {
   }
 
   async getTotalInvestedAmount(user: User): Promise<GetTotalInvestedAmountDto> {
-    const [{ sum }] = await this.depositRepo.query(
-        `select cast(sum(d.currency_amount) as int) from "user" u left outer join deposit d on u.id=d."userId" where u.id=$1 group by d.currency`,
+    const [{ result }] = await this.depositRepo.query(
+        `select cast(coalesce(sum(d.currency_amount), 0) as int) as result from "user" u left outer join deposit d on u.id=d."userId" where u.id=$1 group by d.currency`,
         [user.id]
-    ) as [{ sum: number }];
-    return {amount: sum};
+    ) as QueryResult<number>;
+    return {amount: result};
+  }
+
+  async lastMonthPassiveIncome(user: User): Promise<GetLastMonthPassiveIncome> {
+    const [{ result }] = await this.depositRepo.query(
+      `select cast(coalesce(sum(c.amount), 0) as int) as result from "user" u 
+              left outer join calculation c on u.id=c."userId" 
+              where c.status='sent' and
+              c.accrual_type='product' and 
+              date_trunc('month', c.payment_date) >= date_trunc('month', current_date) and
+              u.id=$1
+        `,
+        [user.id]
+    ) as QueryResult<number>;
+    return {amount: result};
   }
 }
