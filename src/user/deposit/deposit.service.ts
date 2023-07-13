@@ -21,7 +21,7 @@ export class DepositService {
     return (
       (await this.depositRepo.find({
         where: { user },
-        order: { date: 'DESC' },
+        order: { date: 'ASC' },
       })) || []
     ).map((it, idx) => ({
       ...it,
