@@ -30,11 +30,11 @@ export class DepositService {
 
   async getInvestorProAmountByUser(userId: number): Promise<InvestorProDepositAmountReponse> {
     const [{ sum: allPackages }] = (await this.depositRepo.query(
-      `select cast(coalesce(sum(d.currency_amount),0)as int) as sum from public.deposit d where d.product_service_description like 'investor_pro%' and d.product_service_description != 'investor_pro_gamefi'`,
+      `select cast(coalesce(sum(d.currency_amount),0)as int) as sum from "public".deposit d where d.product_service_description like 'investor_pro%' and d.product_service_description != 'investor_pro_gamefi'`,
     )) as [{ sum: number }];
 
     const [{ sum: perUser }] = (await this.depositRepo.query(
-      `select cast(coalesce(sum(d.currency_amount),0)as int) as sum from public.deposit d where d.product_service_description like 'investor_pro%' and d.product_service_description != 'investor_pro_gamefi' and d."userId" = $1`,
+      `select cast(coalesce(sum(d.currency_amount),0)as int) as sum from "public".deposit d where d.product_service_description like 'investor_pro%' and d.product_service_description != 'investor_pro_gamefi' and d."userId" = $1`,
       [userId],
     )) as [{ sum: number }];
 
