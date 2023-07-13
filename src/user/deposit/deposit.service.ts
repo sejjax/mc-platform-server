@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { InvestorProDepositAmountReponse } from './deposit.types';
 import { GetDepositDto } from "./dto/get-deposit.dto";
 import { isDepositClosed } from "./helpers/isDepositClosed";
+import { GetTotalInvestedAmountDto } from "./dto/get-total-invested-amount.dto";
 
 @Injectable()
 export class DepositService {
@@ -40,11 +41,11 @@ export class DepositService {
     return { allPackages, perUser };
   }
 
-  async getTotalInvestedAmount(user: User): Promise<number> {
+  async getTotalInvestedAmount(user: User): Promise<GetTotalInvestedAmountDto> {
     const [{ sum }] = await this.depositRepo.query(
-        `select sum(d.currency_amount) from "user" u left outer join deposit d on u.id=d."userId" where u.id=$1 group by d.currency`,
+        `select cast(sum(d.currency_amount) as int) from "user" u left outer join deposit d on u.id=d."userId" where u.id=$1 group by d.currency`,
         [user.id]
     ) as [{ sum: number }];
-    return sum;
+    return {amount: sum};
   }
 }

@@ -5,6 +5,7 @@ import { DepositService } from 'src/user/deposit/deposit.service';
 import { User } from 'src/users/user.entity';
 import { AuthUser } from 'src/utils/decorators/auth-user.decorator';
 import { InvestorProDepositAmountReponse } from './deposit.types';
+import { GetTotalInvestedAmountDto } from "./dto/get-total-invested-amount.dto";
 
 @UseGuards(AuthGuard('jwt'))
 @ApiTags('User deposit history')
@@ -24,8 +25,8 @@ export class DepositController {
   }
 
   @Get('/total-invested-amount')
-  async getTotalInvestedAmount(@AuthUser() user: User) {
-    return this.depositService.getTotalInvestedAmount(user);
+  async getTotalInvestedAmount(@AuthUser() user: User): Promise<GetTotalInvestedAmountDto> {
+    return await this.depositService.getTotalInvestedAmount(user);
   }
 
   @Get('/:id')
