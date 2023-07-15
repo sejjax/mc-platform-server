@@ -12,6 +12,7 @@ import {
 } from './calculations.types';
 import { CreateCalculationsDto } from './dto/create-calculations.dto';
 import { Calculation } from './entities/calculation.entity';
+import { dbFormat, epochStart, now } from "../../helpers/date";
 
 @Injectable()
 export class CalculationsService {
@@ -60,8 +61,8 @@ export class CalculationsService {
   async getCalculationsByUser(
     user: User | UserWithRefs,
     type: AccrualType,
-    dateFrom: Date = new Date(0),
-    dateTo: Date = new Date()
+    dateFrom: Date = epochStart(),
+    dateTo: Date = now()
   ): Promise<(Calculation | CalculationWithByOrder)[]> {
 
 
@@ -74,8 +75,8 @@ export class CalculationsService {
             `, {
         accrualType: AccrualType[type],
         userId: user.id,
-        dateFrom: dateFrom.toISOString(),
-        dateTo: dateTo.toISOString(),
+        dateFrom: dbFormat(dateFrom),
+        dateTo: dbFormat(dateTo),
       })
       .select([
         'calculation.accrual_type',
