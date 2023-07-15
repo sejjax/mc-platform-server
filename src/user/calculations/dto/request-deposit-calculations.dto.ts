@@ -1,12 +1,11 @@
 import { IsOptional, IsDate} from "class-validator";
-import { epochStart, now } from "../../../helpers/date";
 
 export class RequestDepositCalculationsDto {
     @IsOptional()
     @IsDate()
-    dateFrom: Date = epochStart();
+    dateFrom: Date
 
     @IsDate()
     @IsOptional()
-    dateTo: Date = now();
+    dateTo: Date
 }
