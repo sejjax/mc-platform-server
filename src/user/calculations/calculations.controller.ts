@@ -6,6 +6,7 @@ import { AuthUser } from 'src/utils/decorators/auth-user.decorator';
 import { CalculationsService } from './calculations.service';
 import { RequestRefsCalculationsDto } from "./dto/request-refs-calculations.dto";
 import { AccrualType } from "./calculations.types";
+import { RequestDepositCalculationsDto } from "./dto/request-deposit-calculations.dto";
 
 @Controller('calculations')
 @UseGuards(AuthGuard('jwt'))
@@ -22,10 +23,12 @@ export class CalculationsController {
     );
   }
   @Get('/deposit')
-  async getDepositCalculations(@AuthUser() user: User) {
+  async getDepositCalculations(@AuthUser() user: User, @Body() {dateFrom, dateTo}: RequestDepositCalculationsDto) {
     return await this.calculationsService.getCalculationsByUser(
       user,
       AccrualType.product,
+      dateFrom,
+      dateTo
     );
   }
 }

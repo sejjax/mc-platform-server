@@ -60,6 +60,8 @@ export class CalculationsService {
   async getCalculationsByUser(
     user: User | UserWithRefs,
     type: AccrualType,
+    dateFrom: Date = new Date(0),
+    dateTo: Date = new Date()
   ): Promise<(Calculation | CalculationWithByOrder)[]> {
 
 
@@ -67,9 +69,13 @@ export class CalculationsService {
       .createQueryBuilder('calculation')
       .leftJoinAndSelect('calculation.product', 'product')
       .leftJoinAndSelect('calculation.userPartner', 'userPartner')
-      .where('calculation.accrual_type=:accrualType and calculation.userId=:userId', {
+      .where(`
+            calculation.accrual_type=:accrualType and  calculation.createdAt between :dateFrom and :dateTo  and calculation.userId=:userId
+            `, {
         accrualType: AccrualType[type],
         userId: user.id,
+        dateFrom: dateFrom.toISOString(),
+        dateTo: dateTo.toISOString(),
       })
       .select([
         'calculation.accrual_type',
