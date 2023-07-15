@@ -59,25 +59,18 @@ export class CalculationsService {
 
   async getCalculationsByUser(
     user: User | UserWithRefs,
-    type: 'referral' | 'product',
+    type: AccrualType,
   ): Promise<(Calculation | CalculationWithByOrder)[]> {
-    // const calculations = await this.calculationsRepo.find({
-    //   where: {
-    //     user,
-    //   },
-    // });
+
+
     const calculations = await this.calculationsRepo
       .createQueryBuilder('calculation')
       .leftJoinAndSelect('calculation.product', 'product')
       .leftJoinAndSelect('calculation.userPartner', 'userPartner')
-      .where('calculation.userId = :userId', { userId: user.id })
-      .andWhere(
-        '(calculation.accrual_type = :accrualType OR calculation.accrual_type = :secondAccrualType)',
-        {
-          accrualType: AccrualType[type],
-          secondAccrualType: type === 'product' ? 'upgrade' : 'passive',
-        },
-      )
+      .where('calculation.accrual_type=:accrualType and calculation.userId=:userId', {
+        accrualType: AccrualType[type],
+        userId: user.id,
+      })
       .select([
         'calculation.accrual_type',
         'calculation.id',
