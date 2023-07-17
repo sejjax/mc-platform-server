@@ -4,8 +4,6 @@ import { Deposit } from 'src/user/deposit/entities/deposit.entity';
 import { User } from 'src/users/user.entity';
 import { Repository } from 'typeorm';
 import { InvestorProDepositAmountReponse } from './deposit.types';
-import { GetDepositDto } from "./dto/get-deposit.dto";
-import { isDepositClosed } from "./helpers/isDepositClosed";
 import { GetInvestmentSummaryDto } from "./dto/get-investment-summary.dto";
 import { GetLastMonthPassiveIncome } from "./dto/get-last-month-passive-income.dto";
 import { QueryResult } from "../../types/queryResult";
@@ -17,17 +15,11 @@ export class DepositService {
     private depositRepo: Repository<Deposit>,
   ) {}
 
-  async findByUser(user: User): Promise<GetDepositDto[]> {
-    return (
-      (await this.depositRepo.find({
+  async findByUser(user: User): Promise<Deposit[]> {
+    return await this.depositRepo.find({
         where: { user },
         order: { date: 'ASC' },
-      })) || []
-    ).map((it, idx) => ({
-      ...it,
-      relativeId: idx,
-      isClosed: isDepositClosed(it),
-    })) as GetDepositDto[];
+      });
   }
 
   async getInvestorProAmountByUser(userId: number): Promise<InvestorProDepositAmountReponse> {

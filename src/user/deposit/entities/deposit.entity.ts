@@ -1,4 +1,7 @@
 import {
+  AfterInsert,
+  AfterLoad,
+  AfterUpdate,
   BaseEntity,
   Column,
   CreateDateColumn,
@@ -14,6 +17,7 @@ import { User } from 'src/users/user.entity';
 import { DepositStatus } from '../deposit.types';
 import { Calculation } from 'src/user/calculations/entities/calculation.entity';
 import { Transaction } from 'src/transactions/transaction.entity';
+import { isDepositClosed } from "../helpers/isDepositClosed";
 
 @Entity()
 export class Deposit extends BaseEntity {
@@ -120,4 +124,21 @@ export class Deposit extends BaseEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  guid: string;
+  @AfterLoad()
+  @AfterInsert()
+  @AfterUpdate()
+  generateGUID(): void {
+    const transactionId = Boolean(this.transaction) ? this.transaction.id.toString() : ''
+    this.guid = `${transactionId}-${this.id}`
+  }
+
+  isClosed: boolean;
+  @AfterLoad()
+  @AfterInsert()
+  @AfterUpdate()
+  generateIsClosed(): void {
+    this.isClosed = isDepositClosed(this);
+  }
 }
