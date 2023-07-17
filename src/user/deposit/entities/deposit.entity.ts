@@ -130,7 +130,7 @@ export class Deposit extends BaseEntity {
   @AfterInsert()
   @AfterUpdate()
   generateGUID(): void {
-    const transactionId = Boolean(this.transaction) ? this.transaction.id.toString() : ''
+    const transactionId = Boolean(this.transaction) ? this.transaction.id.toString() : this.id.toString()
     this.guid = `${transactionId}-${this.id}`
   }
 
