@@ -130,6 +130,10 @@ export class Deposit extends BaseEntity {
   @AfterInsert()
   @AfterUpdate()
   generateGUID(): void {
+    if(this.id == null) {
+      delete this.guid
+      return
+    }
     const transactionId = Boolean(this.transaction) ? this.transaction.id.toString() : this.id.toString()
     this.guid = `${transactionId}-${this.id}`
   }
@@ -139,6 +143,11 @@ export class Deposit extends BaseEntity {
   @AfterInsert()
   @AfterUpdate()
   generateIsClosed(): void {
+    if(this.date == null || this.ip_wks == null) {
+      delete this.isClosed;
+      return
+    }
+
     this.isClosed = isDepositClosed(this);
   }
 }

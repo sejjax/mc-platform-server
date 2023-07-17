@@ -1,11 +1,3 @@
-import { IsOptional, IsDate} from "class-validator";
+import { OptionalDateDto } from "./date.dto";
 
-export class RequestDepositCalculationsDto {
-    @IsOptional()
-    @IsDate()
-    dateFrom: Date
-
-    @IsDate()
-    @IsOptional()
-    dateTo: Date
-}
+export class RequestDepositCalculationsDto extends OptionalDateDto {}
