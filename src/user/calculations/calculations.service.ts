@@ -13,6 +13,7 @@ import {
 import { CreateCalculationsDto } from './dto/create-calculations.dto';
 import { Calculation } from './entities/calculation.entity';
 import { dbFormat, epochStart, now } from "../../helpers/date";
+import { ResponseCalculationsSummaryDto } from "./dto/response-calculations-summary.dto";
 
 @Injectable()
 export class CalculationsService {
@@ -20,6 +21,43 @@ export class CalculationsService {
     @InjectRepository(Calculation)
     private calculationsRepo: Repository<Calculation>,
   ) {}
+
+  async calculationsSummary(user: User): Promise<ResponseCalculationsSummaryDto> {
+      const [{
+        currentWeekIncome,
+        currentMonthIncome,
+        nextMonthIncome
+      }] = (await this.calculationsRepo.query(
+        `
+           select (
+              select cast(coalesce(sum(c.amount), 0) as int)
+              from "user" u 
+              left outer join calculation c on u.id=c."userId" 
+              where c."createdAt" between date_trunc('week', now()) and now() and u.id=$1
+            ) as "currentWeekIncome",
+            (
+              select cast(coalesce(sum(c.amount), 0) as int)
+              from "user" u 
+              left outer join calculation c on u.id=c."userId" 
+              where c."createdAt" between date_trunc('month', now()) and now() and u.id=$1
+            ) as "currentMonthIncome",
+            (
+              select cast(coalesce(sum(c.amount), 0) as int)
+              from "user" u 
+              left outer join calculation c on u.id=c."userId" 
+              where c."createdAt" between date_trunc('month', now()) + interval '1 month' and now() + interval '1 month' and u.id=$1
+            ) as "nextMonthIncome"
+        `,
+        [user.id],
+      )) as [ResponseCalculationsSummaryDto];
+
+
+      return {
+        currentWeekIncome,
+        currentMonthIncome,
+        nextMonthIncome
+      };
+  }
 
   async createCalculation(body: CreateCalculationsDto) {
     const calculation = await this.calculationsRepo.save(body);

@@ -7,6 +7,7 @@ import { CalculationsService } from './calculations.service';
 import { RequestRefsCalculationsDto } from "./dto/request-refs-calculations.dto";
 import { AccrualType } from "./calculations.types";
 import { RequestDepositCalculationsDto } from "./dto/request-deposit-calculations.dto";
+import { ResponseCalculationsSummaryDto } from "./dto/response-calculations-summary.dto";
 
 @Controller('calculations')
 @UseGuards(AuthGuard('jwt'))
@@ -30,5 +31,10 @@ export class CalculationsController {
       dateFrom,
       dateTo
     );
+  }
+
+  @Get('/summary')
+  async calculationsSummary(@AuthUser() user: User): Promise<ResponseCalculationsSummaryDto> {
+      return await this.calculationsService.calculationsSummary(user)
   }
 }
