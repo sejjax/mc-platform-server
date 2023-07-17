@@ -13,7 +13,8 @@ import {
 import { CreateCalculationsDto } from './dto/create-calculations.dto';
 import { Calculation } from './entities/calculation.entity';
 import { dbFormat, epochStart, now } from "../../helpers/date";
-import { ResponseCalculationsSummaryDto } from "./dto/response-calculations-summary.dto";
+import { ResponseIncomeForPeriodDto } from "./dto/response-income-for-period.dto";
+import { QueryResult } from "../../types/queryResult";
 
 @Injectable()
 export class CalculationsService {
@@ -22,41 +23,23 @@ export class CalculationsService {
     private calculationsRepo: Repository<Calculation>,
   ) {}
 
-  async calculationsSummary(user: User): Promise<ResponseCalculationsSummaryDto> {
-      const [{
-        currentWeekIncome,
-        currentMonthIncome,
-        nextMonthIncome
-      }] = (await this.calculationsRepo.query(
+  async incomeForPeriod(user: User, dateFrom: Date = epochStart(), dateTo: Date = now()): Promise<ResponseIncomeForPeriodDto> {
+      const [{ result }] = (await this.calculationsRepo.query(
         `
-           select (
-              select cast(coalesce(sum(c.amount), 0) as int)
-              from "user" u 
-              left outer join calculation c on u.id=c."userId" 
-              where c."createdAt" between date_trunc('week', now()) and now() and u.id=$1
-            ) as "currentWeekIncome",
-            (
-              select cast(coalesce(sum(c.amount), 0) as int)
-              from "user" u 
-              left outer join calculation c on u.id=c."userId" 
-              where c."createdAt" between date_trunc('month', now()) and now() and u.id=$1
-            ) as "currentMonthIncome",
-            (
-              select cast(coalesce(sum(c.amount), 0) as int)
-              from "user" u 
-              left outer join calculation c on u.id=c."userId" 
-              where c."createdAt" between date_trunc('month', now()) + interval '1 month' and now() + interval '1 month' and u.id=$1
-            ) as "nextMonthIncome"
+            select cast(coalesce(sum(c.amount), 0) as int) as result
+            from "user" u 
+            left outer join calculation c on u.id=c."userId" 
+            where c."createdAt" between $2 and $3 and u.id=$1
         `,
-        [user.id],
-      )) as [ResponseCalculationsSummaryDto];
+        [
+            user.id,
+            dbFormat(dateFrom),
+            dbFormat(dateTo)
+        ],
+      )) as QueryResult<number>;
 
 
-      return {
-        currentWeekIncome,
-        currentMonthIncome,
-        nextMonthIncome
-      };
+      return { income: result };
   }
 
   async createCalculation(body: CreateCalculationsDto) {

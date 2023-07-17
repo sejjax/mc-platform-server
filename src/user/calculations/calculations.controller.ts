@@ -7,7 +7,8 @@ import { CalculationsService } from './calculations.service';
 import { RequestRefsCalculationsDto } from "./dto/request-refs-calculations.dto";
 import { AccrualType } from "./calculations.types";
 import { RequestDepositCalculationsDto } from "./dto/request-deposit-calculations.dto";
-import { ResponseCalculationsSummaryDto } from "./dto/response-calculations-summary.dto";
+import { ResponseIncomeForPeriodDto } from "./dto/response-income-for-period.dto";
+import { RequestIncomeForPeriodDto } from "./dto/request-income-for-period.dto";
 
 @Controller('calculations')
 @UseGuards(AuthGuard('jwt'))
@@ -33,8 +34,11 @@ export class CalculationsController {
     );
   }
 
-  @Get('/summary')
-  async calculationsSummary(@AuthUser() user: User): Promise<ResponseCalculationsSummaryDto> {
-      return await this.calculationsService.calculationsSummary(user)
+  @Get('/income-for-period')
+  async calculationsSummary(
+      @AuthUser() user: User, 
+      @Body() {dateFrom, dateTo}: RequestIncomeForPeriodDto
+  ): Promise<ResponseIncomeForPeriodDto> {
+      return await this.calculationsService.incomeForPeriod(user, dateFrom, dateTo)
   }
 }
