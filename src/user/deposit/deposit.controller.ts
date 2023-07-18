@@ -1,4 +1,11 @@
-import { Controller, Get, Param, UseGuards, Req, UnauthorizedException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Req,
+  UnauthorizedException,
+  UseGuards
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DepositService } from 'src/user/deposit/deposit.service';
@@ -7,6 +14,8 @@ import { AuthUser } from 'src/utils/decorators/auth-user.decorator';
 import { InvestorProDepositAmountReponse } from './deposit.types';
 import { GetInvestmentSummaryDto } from "./dto/get-investment-summary.dto";
 import { GetLastMonthPassiveIncome } from "./dto/get-last-month-passive-income.dto";
+import { isGuid } from "./helpers/isGuid";
+import { foundCheck } from "../../helpers/notFoundCheck";
 
 @UseGuards(AuthGuard('jwt'))
 @ApiTags('User deposit history')
@@ -35,9 +44,23 @@ export class DepositController {
     return await this.depositService.lastMonthPassiveIncome(user);
   }
 
-  @Get('/:id')
+  @Get('/find-by-user-id/:id')
   async findByUserId(@AuthUser() user: User, @Param('id') id: string) {
     if (user.id !== +id) if (!user.isAdmin) throw new UnauthorizedException();
     return this.depositService.findByUser({ id: id } as unknown as User);
+  }
+
+  @Get('/:idOrGuid')
+  async findByIdOrGuid(
+      @AuthUser() user: User,
+      @Param('idOrGuid') idOrGuid: string,
+  ) {
+    let result;
+
+    if(isGuid(idOrGuid)) result = await this.depositService.findDepositByGuid(idOrGuid)
+    else result = await this.depositService.findById(Number(idOrGuid))
+
+    foundCheck(result, "Deposit not found");
+    return result
   }
 }

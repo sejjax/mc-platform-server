@@ -29,3 +29,6 @@ export interface InvestorProDepositAmountReponse {
   allPackages: number;
   perUser: number;
 }
+
+export type Guid = string;
+export type Id = number;

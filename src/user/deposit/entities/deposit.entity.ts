@@ -18,6 +18,7 @@ import { DepositStatus } from '../deposit.types';
 import { Calculation } from 'src/user/calculations/entities/calculation.entity';
 import { Transaction } from 'src/transactions/transaction.entity';
 import { isDepositClosed } from "../helpers/isDepositClosed";
+import { generateDepositGuid } from "../helpers/generateDepositGuid";
 
 @Entity()
 export class Deposit extends BaseEntity {
@@ -134,8 +135,7 @@ export class Deposit extends BaseEntity {
       delete this.guid
       return
     }
-    const transactionId = Boolean(this.transaction) ? this.transaction.id.toString() : this.id.toString()
-    this.guid = `${transactionId}-${this.id}`
+    this.guid = generateDepositGuid(this.id, this.transaction?.id)
   }
 
   isClosed: boolean;

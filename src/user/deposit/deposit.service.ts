@@ -3,10 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Deposit } from 'src/user/deposit/entities/deposit.entity';
 import { User } from 'src/users/user.entity';
 import { Repository } from 'typeorm';
-import { InvestorProDepositAmountReponse } from './deposit.types';
+import { Guid, InvestorProDepositAmountReponse } from './deposit.types';
 import { GetInvestmentSummaryDto } from "./dto/get-investment-summary.dto";
 import { GetLastMonthPassiveIncome } from "./dto/get-last-month-passive-income.dto";
 import { QueryResult } from "../../types/queryResult";
+import { depositIdFromGuid } from "./helpers/depositIdFromGuid";
 
 @Injectable()
 export class DepositService {
@@ -14,6 +15,15 @@ export class DepositService {
     @InjectRepository(Deposit)
     private depositRepo: Repository<Deposit>,
   ) {}
+
+    async findDepositByGuid(guid: Guid): Promise<Deposit | undefined> {
+    const id = depositIdFromGuid(guid);
+    return await this.depositRepo.findOne({id});
+  }
+
+  async findById(id: number): Promise<Deposit | undefined> {
+    return await this.depositRepo.findOne(id)
+  }
 
   async findByUser(user: User): Promise<Deposit[]> {
     return await this.depositRepo.find({
