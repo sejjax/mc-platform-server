@@ -3,10 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Deposit } from 'src/user/deposit/entities/deposit.entity';
 import { User } from 'src/users/user.entity';
 import { Repository } from 'typeorm';
-import { Guid, InvestorProDepositAmountReponse } from './deposit.types';
+import { Id, InvestorProDepositAmountReponse } from './deposit.types';
 import { GetInvestmentSummaryDto } from "./dto/get-investment-summary.dto";
 import { depositIdFromGuid } from "./helpers/depositIdFromGuid";
 import { RequestDepositsDto } from "./dto/request-deposits.dto";
+import { isGuid } from "./helpers/isGuid";
 
 @Injectable()
 export class DepositService {
@@ -15,23 +16,26 @@ export class DepositService {
     private depositRepo: Repository<Deposit>,
   ) {}
 
-    async findDepositByGuid(guid: Guid): Promise<Deposit | undefined> {
-    const id = depositIdFromGuid(guid);
-    return await this.depositRepo.findOne({id});
-  }
+    async findById(id: Id): Promise<Deposit | undefined> {
+        return this.depositRepo.findOne(id);
+    }
 
-  async findById(id: number): Promise<Deposit | undefined> {
-    return await this.depositRepo.findOne(id)
-  }
+    async findByUser(user: User, { pagination, filters, orderBy }: RequestDepositsDto, idOrGuid?: string): Promise<Deposit[] | Deposit> {
+        let id = undefined;
+        if(idOrGuid != null && isGuid(idOrGuid))
+            id = depositIdFromGuid(idOrGuid)
+        else if(idOrGuid != null)
+           id = Number(idOrGuid)
 
-   async findByUser(user: User, { pagination, filters, orderBy }: RequestDepositsDto): Promise<Deposit[]> {
-    console.log(pagination)
-    return await this.depositRepo.find({
-      ...pagination,
-      where: { user, ...filters },
-      order: { ...orderBy },
-    });
-  }
+        if(id != null)
+            return await this.depositRepo.findOne(id)
+
+        return await this.depositRepo.find({
+          ...pagination,
+          where: { user, ...filters },
+          order: { ...orderBy },
+        });
+    }
 
   async getInvestorProAmountByUser(userId: number): Promise<InvestorProDepositAmountReponse> {
     const [{ sum: allPackages }] = (await this.depositRepo.query(

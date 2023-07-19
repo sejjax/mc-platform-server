@@ -29,22 +29,16 @@ export class DepositController {
     return this.depositService.getInvestorProAmountByUser(user.id);
   }
 
-  @Get('/')
-  async findMy(@AuthUser() user: User, @Query() query: RequestDepositsDto) {
-    console.log(query)
-    return this.depositService.findByUser(user, query);
-  }
 
-    @Get('/:idOrGuid')
+
+  @Get('/:idOrGuid?')
   async findByIdOrGuid(
       @AuthUser() user: User,
-      @Param('idOrGuid') idOrGuid: string,
+      @Query() query: RequestDepositsDto,
+      @Param('idOrGuid') idOrGuid?: string
   ) {
-    let result;
 
-    if(isGuid(idOrGuid)) result = await this.depositService.findDepositByGuid(idOrGuid)
-    else result = await this.depositService.findById(Number(idOrGuid))
-
+    const result = await this.depositService.findByUser(user, query, idOrGuid)
     foundCheck(result, "Deposit not found");
     return result
   }
