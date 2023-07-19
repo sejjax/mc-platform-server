@@ -1,3 +1,3 @@
 import { Guid } from "../deposit.types";
 
-export const depositIdFromGuid = (guid: Guid) => Number(guid.split('-')[1])
+export const depositIdFromGuid = (guid: Guid): number => Number(guid.split('-')[1])

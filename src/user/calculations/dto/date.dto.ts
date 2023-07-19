@@ -1,5 +1,5 @@
 import { IsOptional } from "class-validator";
-import { DateField } from "../../../decorators/dateField";
+import { DateField } from "../../../utils/decorators/date-field.decorator";
 
 export class OptionalDateDto {
     @IsOptional()

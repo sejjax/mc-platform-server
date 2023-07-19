@@ -5,9 +5,8 @@ import { User } from 'src/users/user.entity';
 import { Repository } from 'typeorm';
 import { Guid, InvestorProDepositAmountReponse } from './deposit.types';
 import { GetInvestmentSummaryDto } from "./dto/get-investment-summary.dto";
-import { GetLastMonthPassiveIncome } from "./dto/get-last-month-passive-income.dto";
-import { QueryResult } from "../../types/queryResult";
 import { depositIdFromGuid } from "./helpers/depositIdFromGuid";
+import { RequestDepositsDto } from "./dto/request-deposits.dto";
 
 @Injectable()
 export class DepositService {
@@ -25,11 +24,13 @@ export class DepositService {
     return await this.depositRepo.findOne(id)
   }
 
-  async findByUser(user: User): Promise<Deposit[]> {
+   async findByUser(user: User, { pagination, filters, orderBy }: RequestDepositsDto): Promise<Deposit[]> {
+    console.log(pagination)
     return await this.depositRepo.find({
-        where: { user },
-        order: { date: 'ASC' },
-      });
+      ...pagination,
+      where: { user, ...filters },
+      order: { ...orderBy },
+    });
   }
 
   async getInvestorProAmountByUser(userId: number): Promise<InvestorProDepositAmountReponse> {
@@ -85,19 +86,5 @@ export class DepositService {
       totalInvestedAmount,
       payReadyAmount
     };
-  }
-
-  async lastMonthPassiveIncome(user: User): Promise<GetLastMonthPassiveIncome> {
-    const [{ result }] = await this.depositRepo.query(
-      `select cast(coalesce(sum(c.amount), 0) as int) as result from "user" u 
-              left outer join calculation c on u.id=c."userId" 
-              where c.status='sent' and
-              c.accrual_type='product' and 
-              date_trunc('month', c.payment_date) >= date_trunc('month', current_date) and
-              u.id=$1
-        `,
-        [user.id]
-    ) as QueryResult<number>;
-    return {amount: result};
   }
 }

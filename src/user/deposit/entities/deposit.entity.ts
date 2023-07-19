@@ -17,7 +17,6 @@ import { User } from 'src/users/user.entity';
 import { DepositStatus } from '../deposit.types';
 import { Calculation } from 'src/user/calculations/entities/calculation.entity';
 import { Transaction } from 'src/transactions/transaction.entity';
-import { isDepositClosed } from "../helpers/isDepositClosed";
 import { generateDepositGuid } from "../helpers/generateDepositGuid";
 
 @Entity()
@@ -138,16 +137,7 @@ export class Deposit extends BaseEntity {
     this.guid = generateDepositGuid(this.id, this.transaction?.id)
   }
 
+  // "isClosed" depends on "ip_wks" and "date" fields by following formula: isClosed = now() > this."date" + interval this."ip_wks"
+  @Column({ type: 'boolean', nullable: false, update: false })
   isClosed: boolean;
-  @AfterLoad()
-  @AfterInsert()
-  @AfterUpdate()
-  generateIsClosed(): void {
-    if(this.date == null || this.ip_wks == null) {
-      delete this.isClosed;
-      return
-    }
-
-    this.isClosed = isDepositClosed(this);
-  }
 }

@@ -12,9 +12,9 @@ import {
 } from './calculations.types';
 import { CreateCalculationsDto } from './dto/create-calculations.dto';
 import { Calculation } from './entities/calculation.entity';
-import { dbFormat, epochStart, now } from "../../helpers/date";
 import { ResponseIncomeForPeriodDto } from "./dto/response-income-for-period.dto";
-import { QueryResult } from "../../types/queryResult";
+import { dbFormat, epochStart, now } from "../../utils/helpers/date";
+import { QueryResult } from "../../utils/types/queryResult";
 
 @Injectable()
 export class CalculationsService {
