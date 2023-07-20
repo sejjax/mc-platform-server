@@ -1,6 +1,6 @@
 import {
   Controller,
-  Get,
+  Get, HttpException,
   Param,
   Query,
   UnauthorizedException,
@@ -29,20 +29,6 @@ export class DepositController {
     return this.depositService.getInvestorProAmountByUser(user.id);
   }
 
-
-
-  @Get('/:idOrGuid?')
-  async findByIdOrGuid(
-      @AuthUser() user: User,
-      @Query() query: RequestDepositsDto,
-      @Param('idOrGuid') idOrGuid?: string
-  ) {
-
-    const result = await this.depositService.findByUser(user, query, idOrGuid)
-    foundCheck(result, "Deposit not found");
-    return result
-  }
-
   @Get('/investment-summary')
   async getTotalInvestedAmount(@AuthUser() user: User): Promise<GetInvestmentSummaryDto> {
     return await this.depositService.investmentSummary(user);
@@ -52,5 +38,16 @@ export class DepositController {
   async findByUserId(@AuthUser() user: User, @Param('id') id: number) {
     if (user.id !== +id) if (!user.isAdmin) throw new UnauthorizedException();
     return this.depositService.findById(id)
+  }
+
+  @Get('/:idOrGuid?')
+  async findByIdOrGuid(
+      @AuthUser() user: User,
+      @Query() query: RequestDepositsDto,
+      @Param('idOrGuid') idOrGuid?: string
+  ) {
+    const result = await this.depositService.findByUser(user, query, idOrGuid)
+    foundCheck(result, "Deposit not found");
+    return result
   }
 }
