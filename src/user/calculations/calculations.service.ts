@@ -28,7 +28,7 @@ export class CalculationsService {
             select cast(coalesce(sum(c.amount), 0) as int) as result
             from "user" u 
             left outer join calculation c on u.id=c."userId" 
-            where c."createdAt" between $2 and $3 and u.id=$1
+            where c.payment_date between $2 and $3 and c.accrual_type="product" and u.id=$1
         `,
         [
             user.id,
