@@ -91,7 +91,7 @@ export class CalculationsService {
       .leftJoinAndSelect('calculation.product', 'product')
       .leftJoinAndSelect('calculation.userPartner', 'userPartner')
       .where(`
-            calculation.createdAt between :dateFrom and :dateTo  and calculation.userId=:userId
+            calculation.payment_date between :dateFrom and :dateTo  and calculation.userId=:userId
             `, {
         userId: user.id,
         dateFrom: dbFormat(dateFrom),
