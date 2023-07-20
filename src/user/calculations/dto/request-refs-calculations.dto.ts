@@ -1,9 +1,7 @@
-import { IsEnum, IsNotEmpty } from "class-validator";
-import { AccrualType } from "../calculations.types";
-import { OptionalDateDto } from "./date.dto";
+import { ServiceRequestCalculationsDto, ServiceRequestCalculationsFilter } from "./service-request-calculations.dto";
 
-export class RequestRefsCalculationsDto extends OptionalDateDto {
-    @IsNotEmpty()
-    @IsEnum(AccrualType)
-    referralType: AccrualType
+export class RequestRefsCalculationsFilter extends ServiceRequestCalculationsFilter {}
+
+export class RequestRefsCalculationsDto extends ServiceRequestCalculationsDto {
+    filters: RequestRefsCalculationsFilter
 }

@@ -21,26 +21,22 @@ export class CalculationsController {
   @Get('/referrals')
   async getRefsCalculations(
       @AuthUser() user: User,
-      @Query() { referralType, dateFrom, dateTo }: RequestRefsCalculationsDto
+      @Query() query: RequestRefsCalculationsDto
   ) {
-    return await this.calculationsService.getCalculationsByUser(
-        user,
-        referralType,
-        dateFrom,
-        dateTo
-    );
+    return await this.calculationsService.getCalculationsByUser(user, query);
   }
   @Get('/deposit')
   async getDepositCalculations(
       @AuthUser() user: User,
-      @Query() { dateFrom, dateTo }: RequestDepositCalculationsDto
+      @Query() query: RequestDepositCalculationsDto
   ) {
-    return await this.calculationsService.getCalculationsByUser(
-      user,
-      AccrualType.product,
-      dateFrom,
-      dateTo
-    );
+    return await this.calculationsService.getCalculationsByUser(user, {
+      ...query,
+      filters: {
+        ...query.filters,
+        accrual_type: AccrualType.product
+      }
+    });
   }
 
   @Get('/income-for-period')

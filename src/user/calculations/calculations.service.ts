@@ -4,17 +4,16 @@ import { UserWithRefs } from 'src/metrics/metrics.types';
 import { User } from 'src/users/user.entity';
 import { Repository } from 'typeorm';
 import { Deposit } from '../deposit/entities/deposit.entity';
-import {
-  AccrualType,
-  CalculationPercentsFromLevel,
-  CalculationWithByOrder,
-  Status,
-} from './calculations.types';
+import { AccrualType, CalculationPercentsFromLevel, CalculationWithByOrder, Status, } from './calculations.types';
 import { CreateCalculationsDto } from './dto/create-calculations.dto';
 import { Calculation } from './entities/calculation.entity';
 import { ResponseIncomeForPeriodDto } from "./dto/response-income-for-period.dto";
 import { dbFormat, epochStart, now } from "../../utils/helpers/date";
 import { QueryResult } from "../../utils/types/queryResult";
+import { RequestRefsCalculationsDto } from "./dto/request-refs-calculations.dto";
+import { BaseRequestCalculationsDto } from "./dto/base-request-calculations.dto";
+import { RequestDepositCalculationsDto } from "./dto/request-deposit-calculations.dto";
+import { ServiceRequestCalculationsDto } from "./dto/service-request-calculations.dto";
 
 @Injectable()
 export class CalculationsService {
@@ -79,26 +78,27 @@ export class CalculationsService {
     }
   }
 
-  async getCalculationsByUser(
-    user: User | UserWithRefs,
-    type: AccrualType,
-    dateFrom: Date = epochStart(),
-    dateTo: Date = now()
-  ): Promise<(Calculation | CalculationWithByOrder)[]> {
+  async getCalculationsByUser(user: User | UserWithRefs, query: ServiceRequestCalculationsDto): Promise<(Calculation | CalculationWithByOrder)[]> {
 
+    let {dateFrom, dateTo, ...remainedFilers} = query.filters;
 
+    dateFrom = dateFrom ?? epochStart();
+    dateTo = dateTo ?? now();
+    console.log(remainedFilers.accrual_type)
+    const accrualType = query.filters.accrual_type;
     const calculations = await this.calculationsRepo
       .createQueryBuilder('calculation')
       .leftJoinAndSelect('calculation.product', 'product')
       .leftJoinAndSelect('calculation.userPartner', 'userPartner')
       .where(`
-            calculation.accrual_type=:accrualType and  calculation.createdAt between :dateFrom and :dateTo  and calculation.userId=:userId
+            calculation.createdAt between :dateFrom and :dateTo  and calculation.userId=:userId
             `, {
-        accrualType: AccrualType[type],
         userId: user.id,
         dateFrom: dbFormat(dateFrom),
         dateTo: dbFormat(dateTo),
       })
+        .andWhere(remainedFilers)
+        .orderBy(query.orderBy)
       .select([
         'calculation.accrual_type',
         'calculation.id',
@@ -112,8 +112,10 @@ export class CalculationsService {
         'userPartner.fullName',
         'userPartner.partnerId',
       ])
+        .take(query.pagination.take)
+        .skip(query.pagination.skip)
       .getMany();
-    if (type === 'product') {
+    if (accrualType === AccrualType.product) {
       const ids: number[] = [];
       for (const calculation of calculations) {
         if (!ids.includes(calculation.product.id)) ids.push(calculation.product.id);

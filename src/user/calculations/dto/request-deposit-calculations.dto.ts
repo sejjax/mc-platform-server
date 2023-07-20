@@ -1,3 +1,3 @@
-import { OptionalDateDto } from "./date.dto";
+import { BaseRequestCalculationsDto } from "./base-request-calculations.dto";
 
-export class RequestDepositCalculationsDto extends OptionalDateDto {}
+export class RequestDepositCalculationsDto extends BaseRequestCalculationsDto {}
