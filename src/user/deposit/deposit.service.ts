@@ -8,6 +8,7 @@ import { GetInvestmentSummaryDto } from "./dto/get-investment-summary.dto";
 import { depositIdFromGuid } from "./helpers/depositIdFromGuid";
 import { RequestDepositsDto } from "./dto/request-deposits.dto";
 import { isGuid } from "./helpers/isGuid";
+import { dbFormat, epochStart, now } from "../../utils/helpers/date";
 
 @Injectable()
 export class DepositService {
@@ -30,11 +31,24 @@ export class DepositService {
         if(id != null)
             return await this.depositRepo.findOne(id)
 
-        return await this.depositRepo.find({
-          ...pagination,
-          where: { user, ...filters },
-          order: { ...orderBy },
-        });
+        let {dateFrom, dateTo, ...remainedFilters} = filters;
+
+        dateFrom = dateFrom ?? epochStart()
+        dateTo = dateTo ?? now()
+
+        return await this.depositRepo
+            .createQueryBuilder('d')
+            .where({ user, ...remainedFilters })
+            .where(`
+                d.date between :dateFrom and :dateTo
+                `, {
+                dateFrom: dbFormat(dateFrom),
+                dateTo: dbFormat(dateTo),
+            })
+            .orderBy(orderBy)
+            .skip(pagination.skip)
+            .take(pagination.take)
+            .getMany();
     }
 
   async getInvestorProAmountByUser(userId: number): Promise<InvestorProDepositAmountReponse> {
