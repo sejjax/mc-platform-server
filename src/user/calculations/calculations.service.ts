@@ -82,10 +82,10 @@ export class CalculationsService {
 
     let {dateFrom, dateTo, ...remainedFilers} = query.filters;
 
-    dateFrom = dateFrom ?? epochStart()
-    dateTo = dateTo ?? now()
+    // FIXME: move logic of date transformation to class validation scheme
+    dateFrom = typeof dateFrom === 'string' ? new Date(dateFrom) : epochStart()
+    dateTo = typeof dateTo === 'string' ? new Date(dateTo) : now()
 
-    console.log(remainedFilers.accrual_type)
     const accrualType = query.filters.accrual_type;
     const calculations = await this.calculationsRepo
       .createQueryBuilder('calculation')

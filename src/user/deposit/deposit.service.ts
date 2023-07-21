@@ -33,8 +33,9 @@ export class DepositService {
 
         let {dateFrom, dateTo, ...remainedFilters} = filters;
 
-        dateFrom = dateFrom ?? epochStart()
-        dateTo = dateTo ?? now()
+        // FIXME: move logic of date transformation to class validation scheme
+        dateFrom = typeof dateFrom === 'string' ? new Date(dateFrom) : epochStart()
+        dateTo = typeof dateTo === 'string' ? new Date(dateTo) : now()
 
         return await this.depositRepo
             .createQueryBuilder('d')

@@ -14,7 +14,6 @@ export function JsonField(): PropertyDecorator {
 
   return function (target, propertyKey) {
     IsObject()(target, propertyKey)
-    ValidateNested()(target, propertyKey)
     Transform(fn)(target, propertyKey)
   }
 }
