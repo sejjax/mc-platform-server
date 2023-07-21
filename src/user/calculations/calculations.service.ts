@@ -8,7 +8,7 @@ import { AccrualType, CalculationPercentsFromLevel, CalculationWithByOrder, Stat
 import { CreateCalculationsDto } from './dto/create-calculations.dto';
 import { Calculation } from './entities/calculation.entity';
 import { ResponseIncomeForPeriodDto } from "./dto/response-income-for-period.dto";
-import { dbFormat, epochStart, now } from "../../utils/helpers/date";
+import { dbFormat, epochStart, infinity, now } from "../../utils/helpers/date";
 import { QueryResult } from "../../utils/types/queryResult";
 import { RequestRefsCalculationsDto } from "./dto/request-refs-calculations.dto";
 import { BaseRequestCalculationsDto } from "./dto/base-request-calculations.dto";
@@ -88,7 +88,7 @@ export class CalculationsService {
     let {dateFrom, dateTo, productId, ...remainedFilers} = query.filters;
     // FIXME: move logic of date transformation to class validation scheme
     dateFrom = typeof dateFrom === 'string' ? new Date(dateFrom) : epochStart()
-    dateTo = typeof dateTo === 'string' ? new Date(dateTo) : now()
+    dateTo = typeof dateTo === 'string' ? new Date(dateTo) : infinity()
 
     const accrualType = query.filters.accrual_type;
     const queryStart = () => this.calculationsRepo

@@ -8,7 +8,7 @@ import { GetInvestmentSummaryDto } from "./dto/get-investment-summary.dto";
 import { depositIdFromGuid } from "./helpers/depositIdFromGuid";
 import { RequestDepositsDto } from "./dto/request-deposits.dto";
 import { isGuid } from "./helpers/isGuid";
-import { dbFormat, epochStart, now } from "../../utils/helpers/date";
+import { dbFormat, epochStart, infinity, now } from "../../utils/helpers/date";
 import { ResponseDataArray } from "../../classes/response-data-array";
 import { dataArrayResponse } from "../../utils/helpers/dataArrayResponse";
 
@@ -37,7 +37,7 @@ export class DepositService {
 
         // FIXME: move logic of date transformation to class validation scheme
         dateFrom = typeof dateFrom === 'string' ? new Date(dateFrom) : epochStart()
-        dateTo = typeof dateTo === 'string' ? new Date(dateTo) : now()
+        dateTo = typeof dateTo === 'string' ? new Date(dateTo) : infinity()
 
         const [result, total] =  await this.depositRepo
             .createQueryBuilder('d')
