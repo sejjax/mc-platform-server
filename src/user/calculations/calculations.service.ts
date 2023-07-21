@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserWithRefs } from 'src/metrics/metrics.types';
 import { User } from 'src/users/user.entity';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { Deposit } from '../deposit/entities/deposit.entity';
 import { AccrualType, CalculationPercentsFromLevel, CalculationWithByOrder, Status, } from './calculations.types';
 import { CreateCalculationsDto } from './dto/create-calculations.dto';
@@ -80,16 +80,18 @@ export class CalculationsService {
     }
   }
 
-  async getCalculationsByUser(user: User | UserWithRefs, query: ServiceRequestCalculationsDto): Promise<ResponseDataArray<Calculation | CalculationWithByOrder>> {
-
-    let {dateFrom, dateTo, ...remainedFilers} = query.filters;
-
+  async getCalculationsByUser(user: User | UserWithRefs, query: ServiceRequestCalculationsDto):
+      Promise<
+          ResponseDataArray<Calculation | CalculationWithByOrder> |
+          Calculation | CalculationWithByOrder
+      > {
+    let {dateFrom, dateTo, productId, ...remainedFilers} = query.filters;
     // FIXME: move logic of date transformation to class validation scheme
     dateFrom = typeof dateFrom === 'string' ? new Date(dateFrom) : epochStart()
     dateTo = typeof dateTo === 'string' ? new Date(dateTo) : now()
 
     const accrualType = query.filters.accrual_type;
-    const [calculations, total] = await this.calculationsRepo
+    const queryStart = () => this.calculationsRepo
       .createQueryBuilder('calculation')
       .leftJoinAndSelect('calculation.product', 'product')
       .leftJoinAndSelect('calculation.userPartner', 'userPartner')
@@ -100,8 +102,8 @@ export class CalculationsService {
         dateFrom: dbFormat(dateFrom),
         dateTo: dbFormat(dateTo),
       })
-        .andWhere(remainedFilers)
-        .orderBy(query.orderBy)
+        // .andWhere(remainedFilers)
+    const queryEnd = (dbQuery: SelectQueryBuilder<Calculation>) => dbQuery.orderBy(query.orderBy)
       .select([
         'calculation.accrual_type',
         'calculation.id',
@@ -118,6 +120,13 @@ export class CalculationsService {
         .take(query.pagination.take)
         .skip(query.pagination.skip)
       .getManyAndCount();
+    const [calculations, total] =  await queryEnd(
+        typeof productId === "number" ?
+            queryStart().andWhere(`product.id=${productId}`) :
+            queryStart()
+    )
+
+
     let result;
     if (accrualType === AccrualType.product) {
       const ids: number[] = [];
