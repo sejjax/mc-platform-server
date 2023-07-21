@@ -14,6 +14,8 @@ import { RequestRefsCalculationsDto } from "./dto/request-refs-calculations.dto"
 import { BaseRequestCalculationsDto } from "./dto/base-request-calculations.dto";
 import { RequestDepositCalculationsDto } from "./dto/request-deposit-calculations.dto";
 import { ServiceRequestCalculationsDto } from "./dto/service-request-calculations.dto";
+import { dataArrayResponse } from "../../utils/helpers/dataArrayResponse";
+import { ResponseDataArray } from "../../classes/response-data-array";
 
 @Injectable()
 export class CalculationsService {
@@ -78,7 +80,7 @@ export class CalculationsService {
     }
   }
 
-  async getCalculationsByUser(user: User | UserWithRefs, query: ServiceRequestCalculationsDto): Promise<(Calculation | CalculationWithByOrder)[]> {
+  async getCalculationsByUser(user: User | UserWithRefs, query: ServiceRequestCalculationsDto): Promise<ResponseDataArray<Calculation | CalculationWithByOrder>> {
 
     let {dateFrom, dateTo, ...remainedFilers} = query.filters;
 
@@ -87,7 +89,7 @@ export class CalculationsService {
     dateTo = typeof dateTo === 'string' ? new Date(dateTo) : now()
 
     const accrualType = query.filters.accrual_type;
-    const calculations = await this.calculationsRepo
+    const [calculations, total] = await this.calculationsRepo
       .createQueryBuilder('calculation')
       .leftJoinAndSelect('calculation.product', 'product')
       .leftJoinAndSelect('calculation.userPartner', 'userPartner')
@@ -115,19 +117,26 @@ export class CalculationsService {
       ])
         .take(query.pagination.take)
         .skip(query.pagination.skip)
-      .getMany();
+      .getManyAndCount();
+    let result;
     if (accrualType === AccrualType.product) {
       const ids: number[] = [];
       for (const calculation of calculations) {
         if (!ids.includes(calculation.product.id)) ids.push(calculation.product.id);
       }
       ids.sort();
-      return calculations.map<CalculationWithByOrder>((calculation) => ({
+       result = calculations.map<CalculationWithByOrder>((calculation) => ({
         ...calculation,
         buyOrder: ids.indexOf(calculation.product.id) + 1,
       }));
+    } else {
+      result = calculations
     }
-    return calculations;
+    return dataArrayResponse({
+            ...query.pagination,
+            totalItemsCount: total,
+            items: result
+        });
   }
 
   async getReferralsCalculationsByUser(user: User) {

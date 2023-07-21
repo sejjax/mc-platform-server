@@ -9,6 +9,8 @@ import { depositIdFromGuid } from "./helpers/depositIdFromGuid";
 import { RequestDepositsDto } from "./dto/request-deposits.dto";
 import { isGuid } from "./helpers/isGuid";
 import { dbFormat, epochStart, now } from "../../utils/helpers/date";
+import { ResponseDataArray } from "../../classes/response-data-array";
+import { dataArrayResponse } from "../../utils/helpers/dataArrayResponse";
 
 @Injectable()
 export class DepositService {
@@ -21,7 +23,7 @@ export class DepositService {
         return this.depositRepo.findOne(id);
     }
 
-    async findByUser(user: User, { pagination, filters, orderBy }: RequestDepositsDto, idOrGuid?: string): Promise<Deposit[] | Deposit> {
+    async findByUser(user: User, { pagination, filters, orderBy }: RequestDepositsDto, idOrGuid?: string): Promise<ResponseDataArray<Deposit> | Deposit> {
         let id = undefined;
         if(idOrGuid != null && isGuid(idOrGuid))
             id = depositIdFromGuid(idOrGuid)
@@ -37,7 +39,7 @@ export class DepositService {
         dateFrom = typeof dateFrom === 'string' ? new Date(dateFrom) : epochStart()
         dateTo = typeof dateTo === 'string' ? new Date(dateTo) : now()
 
-        return await this.depositRepo
+        const [result, total] =  await this.depositRepo
             .createQueryBuilder('d')
             .where({ user, ...remainedFilters })
             .where(`
@@ -49,7 +51,12 @@ export class DepositService {
             .orderBy(orderBy)
             .skip(pagination.skip)
             .take(pagination.take)
-            .getMany();
+            .getManyAndCount()
+        return dataArrayResponse({
+            ...pagination,
+            totalItemsCount: total,
+            items: result
+        })
     }
 
   async getInvestorProAmountByUser(userId: number): Promise<InvestorProDepositAmountReponse> {
