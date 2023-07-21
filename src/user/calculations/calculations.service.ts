@@ -102,7 +102,7 @@ export class CalculationsService {
         dateFrom: dbFormat(dateFrom),
         dateTo: dbFormat(dateTo),
       })
-        // .andWhere(remainedFilers)
+        .andWhere(remainedFilers)
     const queryEnd = (dbQuery: SelectQueryBuilder<Calculation>) => dbQuery.orderBy(query.orderBy)
       .select([
         'calculation.accrual_type',
