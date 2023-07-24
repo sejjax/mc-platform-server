@@ -8,14 +8,12 @@ import { Order } from "../../../utils/types/order";
 
 export class RequestRefsCalculationsFilter extends OptionalDateDto {
     @IsOptional()
-    @IsEnum(Status)
     // TODO: Реализовать валидатор для типа OneMany<T> на декораторе @Type
     status?: OneMany<Status>
 
     @IsOptional()
     @IsEnum(AccrualType)
-    // TODO: Реализовать валидатор для типа OneMany<T> на декораторе @Type
-    accrual_type?: OneMany<AccrualType>
+    accrual_type?: AccrualType
 }
 
 export class RequestRefsCalculationsOrderBy {

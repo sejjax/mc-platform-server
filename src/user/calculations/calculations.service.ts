@@ -17,6 +17,7 @@ import { sqlCleanObjectQueryMap, sqlObjectQueryMap } from "../../utils/helpers/s
 import { clean } from "../../utils/helpers/clean";
 import { Order } from "../../utils/types/order";
 import { IsEnum, IsOptional } from "class-validator";
+import { sqlMap } from "../../utils/helpers/sqlMap";
 
 @Injectable()
 export class CalculationsService {
@@ -88,7 +89,7 @@ export class CalculationsService {
             Calculation | CalculationWithByOrder
         > {
         /* TODO: Test dates work */
-        let {dateFrom, dateTo, productId, ...remainedFilers} = query.filters;
+        let {dateFrom, dateTo, productId, status, ...remainedFilers} = query.filters;
 
         const accrualType = query.filters.accrual_type;
         const {referralPartnerId, referralFullName, ...remainedOrderBy} = query.orderBy;
@@ -104,6 +105,7 @@ export class CalculationsService {
                 dateTo: dateTo?.toISOString() ?? infinity().toISOString(),
             })
             .andWhere(remainedFilers)
+            .andWhere(sqlMap('calculation.status', Array.isArray(status) ? status.map(it => it.toString()) : status))
         const queryEnd = (dbQuery: SelectQueryBuilder<Calculation>) => dbQuery
             .orderBy(clean({
                 ...sqlObjectQueryMap('calculation', remainedOrderBy),

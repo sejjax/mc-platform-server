@@ -9,7 +9,6 @@ import { Id } from "../../deposit/deposit.types";
 
 export class RequestDepositCalculationsFilter extends OptionalDateDto {
     @IsOptional()
-    @IsEnum(Status)
     // TODO: Реализовать валидатор для типа OneMany<T> на декораторе @Type
     status?: OneMany<Status>
 
