@@ -33,7 +33,7 @@ export class CalculationsController {
     return await this.calculationsService.getCalculationsByUser(user, {
       ...query,
       filters: {
-        ...query,
+        ...query.filters,
         accrual_type: AccrualType.product,
       }
     });
