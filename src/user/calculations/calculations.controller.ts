@@ -41,9 +41,8 @@ export class CalculationsController {
 
     @Get('/income-for-period')
     async calculationsSummary(
-        @AuthUser() user: User,
-        @Query() {dateFrom, dateTo}: RequestIncomeForPeriodDto
+        @AuthUser() user: User
     ): Promise<ResponseIncomeForPeriodDto> {
-        return await this.calculationsService.incomeForPeriod(user, dateFrom, dateTo)
+        return await this.calculationsService.incomeForPeriod(user)
     }
 }

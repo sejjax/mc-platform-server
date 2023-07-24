@@ -28,23 +28,39 @@ export class CalculationsService {
     ) {
     }
 
-    async incomeForPeriod(user: User, dateFrom: Date = epochStart(), dateTo: Date = now()): Promise<ResponseIncomeForPeriodDto> {
-        const [{result}] = (await this.calculationsRepo.query(
+    async incomeForPeriod(user: User): Promise<ResponseIncomeForPeriodDto> {
+        const [{
+            currentWeekIncome,
+            currentMonthIncome,
+            nextMonthIncome
+        }] = (await this.calculationsRepo.query(
             `
-            select cast(coalesce(sum(c.amount), 0) as int) as result
-            from "user" u 
-            left outer join calculation c on u.id=c."userId" 
-            where c.payment_date between $2 and $3 and c.accrual_type='product' and u.id=$1
-        `,
+            select (
+           select cast(coalesce(sum(c.amount), 0) as int)
+           from "user" u  left outer join calculation c on u.id=c."userId"
+           where c.payment_date between date_trunc('week', now()) and now() and c.accrual_type='product' and u.id=$1
+       ) as "currentWeekIncome",
+       (
+           select cast(coalesce(sum(c.amount), 0) as int)
+           from "user" u left outer join calculation c on u.id=c."userId"
+           where c.payment_date between date_trunc('month', now()) and date_trunc('month', now()) + interval '1 month' and c.accrual_type='product' and u.id=$1
+
+       ) as "currentMonthIncome",
+       (
+           select cast(coalesce(sum(c.amount), 0) as int)
+           from "user" u left outer join calculation c on u.id=c."userId"
+           where c.payment_date between date_trunc('month', now()) + interval '1 month' and date_trunc('month', now()) + interval '2 month' and c.accrual_type='product' and u.id=$1
+       ) as "nextMonthIncome"`,
             [
                 user.id,
-                dbFormat(dateFrom),
-                dbFormat(dateTo)
             ],
-        )) as QueryResult<number>;
+        )) as [ResponseIncomeForPeriodDto];
 
-
-        return {income: result};
+        return {
+            currentWeekIncome,
+            currentMonthIncome,
+            nextMonthIncome
+        };
     }
 
     async createCalculation(body: CreateCalculationsDto) {
