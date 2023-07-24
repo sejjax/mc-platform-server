@@ -19,6 +19,7 @@ import { Order } from "../../utils/types/order";
 import { IsEnum, IsOptional } from "class-validator";
 import { sqlMap } from "../../utils/helpers/sqlMap";
 import { init1647911348140 } from "../../database/migrations/1647911348140-init";
+import { sqlif } from "../../utils/helpers/sqlif";
 
 @Injectable()
 export class CalculationsService {
@@ -122,7 +123,11 @@ export class CalculationsService {
                 dateTo: typeof dateTo === 'string' ? dateTo : infinity().toISOString(),
             })
             .andWhere(remainedFilers)
-            .andWhere(sqlMap('calculation.status', Array.isArray(status) ? status.map(it => it.toString()) : status))
+            .andWhere(sqlif(
+                typeof status === 'string' || (Array.isArray(status) && status.length > 0),
+                sqlMap('calculation.status', Array.isArray(status) ? status.map(it => it.toString()) : status)
+            ))
+            .andWhere(sqlif(typeof productId === "number", `product.id=${productId}`))
         const queryEnd = (dbQuery: SelectQueryBuilder<Calculation>) => dbQuery
             .orderBy(clean({
                 ...sqlObjectQueryMap('calculation', remainedOrderBy),
@@ -145,11 +150,7 @@ export class CalculationsService {
             .take(query.pagination.take)
             .skip(query.pagination.skip)
             .getManyAndCount();
-        const [calculations, total] = await queryEnd(
-            typeof productId === "number" ?
-                queryStart().andWhere(`product.id=${productId}`) :
-                queryStart()
-        )
+        const [calculations, total] = await queryEnd(queryStart())
 
 
         let result;
