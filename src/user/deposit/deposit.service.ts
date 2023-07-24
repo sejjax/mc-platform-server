@@ -6,49 +6,58 @@ import { Repository } from 'typeorm';
 import { Id, InvestorProDepositAmountReponse } from './deposit.types';
 import { GetInvestmentSummaryDto } from "./dto/get-investment-summary.dto";
 import { depositIdFromGuid } from "./helpers/depositIdFromGuid";
-import { RequestDepositsDto } from "./dto/request-deposits.dto";
+import { RequestDepositDto } from "./dto/request-deposits.dto";
 import { isGuid } from "./helpers/isGuid";
 import { dbFormat, epochStart, infinity, now } from "../../utils/helpers/date";
 import { ResponseDataArray } from "../../classes/response-data-array";
 import { dataArrayResponse } from "../../utils/helpers/dataArrayResponse";
+import { sqlMap } from "../../utils/helpers/sqlMap";
+import { clean } from "../../utils/helpers/clean";
+import { sqlObjectQueryMap } from "../../utils/helpers/sqlObjectQueryMap";
 
 @Injectable()
 export class DepositService {
-  constructor(
-    @InjectRepository(Deposit)
-    private depositRepo: Repository<Deposit>,
-  ) {}
+    constructor(
+        @InjectRepository(Deposit)
+        private depositRepo: Repository<Deposit>,
+    ) {
+    }
 
     async findById(id: Id): Promise<Deposit | undefined> {
         return this.depositRepo.findOne(id);
     }
 
-    async findByUser(user: User, { pagination, filters, orderBy }: RequestDepositsDto, idOrGuid?: string): Promise<ResponseDataArray<Deposit> | Deposit> {
+    async findByUser(user: User, {
+        pagination,
+        filters,
+        orderBy
+    }: RequestDepositDto, idOrGuid?: string): Promise<ResponseDataArray<Deposit> | Deposit> {
         let id = undefined;
-        if(idOrGuid != null && isGuid(idOrGuid))
+        if (idOrGuid != null && isGuid(idOrGuid))
             id = depositIdFromGuid(idOrGuid)
-        else if(idOrGuid != null)
-           id = Number(idOrGuid)
+        else if (idOrGuid != null)
+            id = Number(idOrGuid)
 
-        if(id != null)
+        if (id != null)
             return await this.depositRepo.findOne(id)
 
         let {dateFrom, dateTo, ...remainedFilters} = filters;
+        // TODO: Check dates working
 
-        // FIXME: move logic of date transformation to class validation scheme
-        dateFrom = typeof dateFrom === 'string' ? new Date(dateFrom) : epochStart()
-        dateTo = typeof dateTo === 'string' ? new Date(dateTo) : infinity()
-
-        const [result, total] =  await this.depositRepo
+        const {product, ...remainedOrderBy} = orderBy;
+        const [result, total] = await this.depositRepo
             .createQueryBuilder('d')
-            .where({ user, ...remainedFilters })
-            .where(`
+            .where({user, ...clean(remainedFilters)})
+            .andWhere(`
                 d.date between :dateFrom and :dateTo
                 `, {
-                dateFrom: dbFormat(dateFrom),
-                dateTo: dbFormat(dateTo),
+                dateFrom: dateFrom?.toISOString() ?? epochStart(),
+                dateTo: dateTo?.toISOString() ?? infinity(),
             })
-            .orderBy(orderBy)
+            .orderBy(clean({
+                ...sqlObjectQueryMap('deposit', remainedOrderBy),
+                // TODO: Add product orderBy
+            }))
             .skip(pagination.skip)
             .take(pagination.take)
             .getManyAndCount()
@@ -59,27 +68,27 @@ export class DepositService {
         })
     }
 
-  async getInvestorProAmountByUser(userId: number): Promise<InvestorProDepositAmountReponse> {
-    const [{ sum: allPackages }] = (await this.depositRepo.query(
-      `select cast(coalesce(sum(d.currency_amount),0)as int) as sum from "public".deposit d where d.product_service_description like 'investor_pro%' and d.product_service_description != 'investor_pro_gamefi'`,
-    )) as [{ sum: number }];
+    async getInvestorProAmountByUser(userId: number): Promise<InvestorProDepositAmountReponse> {
+        const [{sum: allPackages}] = (await this.depositRepo.query(
+            `select cast(coalesce(sum(d.currency_amount),0)as int) as sum from "public".deposit d where d.product_service_description like 'investor_pro%' and d.product_service_description != 'investor_pro_gamefi'`,
+        )) as [{ sum: number }];
 
-    const [{ sum: perUser }] = (await this.depositRepo.query(
-      `select cast(coalesce(sum(d.currency_amount),0)as int) as sum from "public".deposit d where d.product_service_description like 'investor_pro%' and d.product_service_description != 'investor_pro_gamefi' and d."userId" = $1`,
-      [userId],
-    )) as [{ sum: number }];
+        const [{sum: perUser}] = (await this.depositRepo.query(
+            `select cast(coalesce(sum(d.currency_amount),0)as int) as sum from "public".deposit d where d.product_service_description like 'investor_pro%' and d.product_service_description != 'investor_pro_gamefi' and d."userId" = $1`,
+            [userId],
+        )) as [{ sum: number }];
 
-    return { allPackages, perUser };
-  }
+        return {allPackages, perUser};
+    }
 
-  async investmentSummary(user: User): Promise<GetInvestmentSummaryDto> {
-    const [{ 
-      currentInvestmentAmount,
-      totalPayedAmount,
-      totalInvestedAmount,
-      payReadyAmount
-    }] = await this.depositRepo.query(
-        `
+    async investmentSummary(user: User): Promise<GetInvestmentSummaryDto> {
+        const [{
+            currentInvestmentAmount,
+            totalPayedAmount,
+            totalInvestedAmount,
+            payReadyAmount
+        }] = await this.depositRepo.query(
+            `
             select (
               select cast(coalesce(sum(d.currency_amount), 0) as int)
               from "user" u 
@@ -104,13 +113,13 @@ export class DepositService {
               left outer join balance b on u.id=b."userId" 
               where u.id=$1
             ) as "payReadyAmount"`,
-        [user.id]
-    ) as [GetInvestmentSummaryDto];
-    return {
-      currentInvestmentAmount,
-      totalPayedAmount,
-      totalInvestedAmount,
-      payReadyAmount
-    };
-  }
+            [user.id]
+        ) as [GetInvestmentSummaryDto];
+        return {
+            currentInvestmentAmount,
+            totalPayedAmount,
+            totalInvestedAmount,
+            payReadyAmount
+        };
+    }
 }

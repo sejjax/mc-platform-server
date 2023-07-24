@@ -1,21 +1,54 @@
-import { RequestDataArray } from "../../../classes/request-data-array";
-import { DepositFilterDto } from "./deposit.filter.dto";
-import { IsOptional, ValidateNested } from "class-validator";
 import { JsonField } from "../../../utils/decorators/json-field.decorator";
-import { Type } from "class-transformer";
-
-export class RequestDepositsDto extends RequestDataArray<
-    DepositFilterDto,
-    'date' | 'product' | 'currency_amount' | 'apy' | 'investment_period' |
-    'payment_period' | 'earn_amount' | 'wallet_addr'
-> {
+import { RequestDataArray } from "../../../classes/request-data-array";
+import { OptionalDateDto } from "../../calculations/dto/date.dto";
+import { IsBoolean, IsEnum, IsOptional } from "class-validator";
+import { Order } from "../../../utils/types/order";
 
 
-    @JsonField()
-    @Type(() => DepositFilterDto)
-    @ValidateNested()
-
-    filters!: DepositFilterDto
+export class RequestDepositFilter extends OptionalDateDto {
+    @IsOptional()
+    @IsBoolean()
+    isClosed?: boolean
 }
 
+export class RequestDepositOrderBy {
+    @IsEnum(Order)
+    @IsOptional()
+    date?: Order
 
+    @IsEnum(Order)
+    @IsOptional()
+    product?: Order
+
+    @IsEnum(Order)
+    @IsOptional()
+    currency_amount?: Order
+
+    @IsEnum(Order)
+    @IsOptional()
+    apy?: Order
+
+    @IsEnum(Order)
+    @IsOptional()
+    investment_period?: Order
+
+    @IsEnum(Order)
+    @IsOptional()
+    payment_period ?: Order
+
+    @IsEnum(Order)
+    @IsOptional()
+    earn_amount?: Order
+
+    @IsEnum(Order)
+    @IsOptional()
+    wallet_addr?: Order
+}
+
+export class RequestDepositDto extends RequestDataArray {
+    @JsonField(RequestDepositFilter)
+    filters: RequestDepositFilter
+
+    @JsonField(RequestDepositOrderBy)
+    orderBy: RequestDepositOrderBy
+}

@@ -33,17 +33,17 @@ export class CalculationsController {
     return await this.calculationsService.getCalculationsByUser(user, {
       ...query,
       filters: {
-        ...query.filters,
-        accrual_type: AccrualType.product
+        ...query,
+        accrual_type: AccrualType.product,
       }
     });
   }
 
-  @Get('/income-for-period')
-  async calculationsSummary(
-      @AuthUser() user: User, 
-      @Query() { dateFrom, dateTo }: RequestIncomeForPeriodDto
-  ): Promise<ResponseIncomeForPeriodDto> {
-      return await this.calculationsService.incomeForPeriod(user, dateFrom, dateTo)
-  }
+    @Get('/income-for-period')
+    async calculationsSummary(
+        @AuthUser() user: User,
+        @Query() {dateFrom, dateTo}: RequestIncomeForPeriodDto
+    ): Promise<ResponseIncomeForPeriodDto> {
+        return await this.calculationsService.incomeForPeriod(user, dateFrom, dateTo)
+    }
 }

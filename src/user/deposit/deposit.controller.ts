@@ -14,7 +14,7 @@ import { AuthUser } from 'src/utils/decorators/auth-user.decorator';
 import { InvestorProDepositAmountReponse } from './deposit.types';
 import { GetInvestmentSummaryDto } from "./dto/get-investment-summary.dto";
 import { isGuid } from "./helpers/isGuid";
-import { RequestDepositsDto } from "./dto/request-deposits.dto";
+import { RequestDepositDto } from "./dto/request-deposits.dto";
 import { foundCheck } from "../../utils/helpers/notFoundCheck";
 
 @UseGuards(AuthGuard('jwt'))
@@ -43,7 +43,7 @@ export class DepositController {
   @Get('/:idOrGuid?')
   async findByIdOrGuid(
       @AuthUser() user: User,
-      @Query() query: RequestDepositsDto,
+      @Query() query: RequestDepositDto,
       @Param('idOrGuid') idOrGuid?: string
   ) {
     const result = await this.depositService.findByUser(user, query, idOrGuid)
