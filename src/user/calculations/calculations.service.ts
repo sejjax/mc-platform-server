@@ -18,6 +18,7 @@ import { clean } from "../../utils/helpers/clean";
 import { Order } from "../../utils/types/order";
 import { IsEnum, IsOptional } from "class-validator";
 import { sqlMap } from "../../utils/helpers/sqlMap";
+import { init1647911348140 } from "../../database/migrations/1647911348140-init";
 
 @Injectable()
 export class CalculationsService {
@@ -101,8 +102,8 @@ export class CalculationsService {
             calculation.payment_date between :dateFrom and :dateTo  and calculation.userId=:userId
             `, {
                 userId: user.id,
-                dateFrom: dateFrom?.toISOString() ?? epochStart().toISOString(),
-                dateTo: dateTo?.toISOString() ?? infinity().toISOString(),
+                dateFrom: typeof dateFrom === 'string' ? dateFrom : epochStart().toISOString(),
+                dateTo: typeof dateTo === 'string' ? dateTo : infinity().toISOString(),
             })
             .andWhere(remainedFilers)
             .andWhere(sqlMap('calculation.status', Array.isArray(status) ? status.map(it => it.toString()) : status))

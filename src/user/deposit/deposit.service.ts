@@ -51,8 +51,8 @@ export class DepositService {
             .andWhere(`
                 d.date between :dateFrom and :dateTo
                 `, {
-                dateFrom: dateFrom?.toISOString() ?? epochStart(),
-                dateTo: dateTo?.toISOString() ?? infinity(),
+                dateFrom: typeof dateFrom === 'string' ? dateFrom : epochStart().toISOString(),
+                dateTo: typeof dateTo === 'string' ? dateTo : infinity().toISOString(),
             })
             .orderBy(clean({
                 ...sqlObjectQueryMap('deposit', remainedOrderBy),
