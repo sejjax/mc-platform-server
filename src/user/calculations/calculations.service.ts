@@ -133,7 +133,7 @@ export class CalculationsService {
                 ...sqlObjectQueryMap('calculation', remainedOrderBy),
                 'userPartner.fullName': referralFullName,
                 'userPartner.partnerId': referralPartnerId,
-                'calculation.product.product': product
+                'product.id': product
             }))
             .select([
                 'calculation.accrual_type',
