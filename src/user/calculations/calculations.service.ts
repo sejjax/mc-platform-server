@@ -2,24 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserWithRefs } from 'src/metrics/metrics.types';
 import { User } from 'src/users/user.entity';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Deposit } from '../deposit/entities/deposit.entity';
 import { AccrualType, CalculationPercentsFromLevel, CalculationWithByOrder, Status, } from './calculations.types';
 import { CreateCalculationsDto } from './dto/create-calculations.dto';
 import { Calculation } from './entities/calculation.entity';
 import { ResponseIncomeForPeriodDto } from "./dto/response-income-for-period.dto";
-import { dbFormat, epochStart, infinity, now } from "../../utils/helpers/date";
-import { QueryResult } from "../../utils/types/queryResult";
+import { epochStart, infinity } from "../../utils/helpers/date";
 import { RequestServiceCalculationsDto } from "./dto/service-request-calculations.dto";
 import { dataArrayResponse } from "../../utils/helpers/dataArrayResponse";
 import { ResponseDataArray } from "../../classes/response-data-array";
-import { sqlCleanObjectQueryMap, sqlObjectQueryMap } from "../../utils/helpers/sqlObjectQueryMap";
-import { clean } from "../../utils/helpers/clean";
-import { Order } from "../../utils/types/order";
-import { IsEnum, IsOptional } from "class-validator";
+import { sqlCleanObjectQueryMap } from "../../utils/helpers/sqlObjectQueryMap";
 import { sqlMap } from "../../utils/helpers/sqlMap";
-import { init1647911348140 } from "../../database/migrations/1647911348140-init";
-import { sqlif } from "../../utils/helpers/sqlif";
 import { all, comma, o, orderBy } from "../../utils/helpers/sql";
 import { transferObjectFields } from "../../helpers/transferObjectFields";
 import { omit } from "../../utils/helpers/object";
@@ -112,15 +106,16 @@ export class CalculationsService {
             ResponseDataArray<Calculation | CalculationWithByOrder> |
             Calculation | CalculationWithByOrder
         > {
-        /* TODO: Test dates work */
-        let {dateFrom, dateTo, productId, status, ...remainedFilers} = query.filters;
-        // @ts-ignore
-        dateFrom = typeof dateFrom === 'string' ? dateFrom : epochStart().toISOString()
-       // @ts-ignore
-        dateTo = typeof dateTo === 'string' ? dateTo : infinity().toISOString()
+        const {productId, status, ...remainedFilers} = query.filters;
+        const dateFrom = typeof query.filters.dateFrom === 'string' ? query.filters.dateFrom : epochStart().toISOString()
+        const dateTo = typeof query.filters.dateTo === 'string' ? query.filters.dateTo : infinity().toISOString()
+
+        delete remainedFilers.dateFrom;
+        delete remainedFilers.dateTo;
+
         const accrualType = query.filters.accrual_type;
         const {referralPartnerId, referralFullName, product, percent, ...remainedOrderBy} = query.orderBy;
-        const d = Object.entries(sqlCleanObjectQueryMap('c', remainedFilers)).map(([key, value]) => `${key}='${value}'`);
+
 
         const buildSqlQuery = (cond: boolean) => `
                 select ${cond ? `count(*)` : `
@@ -148,9 +143,8 @@ export class CalculationsService {
                 o(dateFrom, () => `c.payment_date > '${dateFrom}'`),
                 o(dateTo, () => `c.payment_date < '${dateTo}'`),
                 o(productId, () => `"productId"=${productId}`),
-                // @ts-ignore 
-                o(status, () => sqlMap(`c.status`, status.map(it => it.toString())), Array.isArray(status)),
-                ...d
+                o(status, () => sqlMap(`c.status`, Array.isArray(status) ? status.map(it => it.toString()) : []), Array.isArray(status)),
+                ...Object.entries(sqlCleanObjectQueryMap('c', remainedFilers)).map(([key, value]) => `${key}='${value}'`)
         )}
                 ${!cond ? `order by ${comma(
                 orderBy('c', remainedOrderBy),
