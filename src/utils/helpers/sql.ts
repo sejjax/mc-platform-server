@@ -1,22 +1,15 @@
 import { ObjectLiteral, Repository, SelectQueryBuilder } from "typeorm";
 import { RequestDataArray } from "../../classes/request-data-array";
-import { sqlCleanObjectQueryMap } from "./sqlObjectQueryMap";
+import { sqlCleanObjectQueryMap, sqlObjectQueryMap } from "./sqlObjectQueryMap";
 
-export const all = (...args: string[]) => args.join(' and ')
-export const any = (...args: string[]) => args.join(' or ')
+export const o = <T extends any>(args: T, query: (args: T) => string, cond: boolean=args != null) =>
+    cond ? query(args) : '';
 
-export type SelectQueryBuilderFn<T> = (query: SelectQueryBuilder<T>) => SelectQueryBuilder<T>
+export const strclean = (strings: string[]) => strings.filter(str => str !== '')
+export const all = (...args: string[]) => strclean(args).join(' and ')
+export const any = (...args: string[]) => strclean(args).join(' or ')
+export const comma = (...args: string[]) => strclean(args).join(', ')
 
-export const dataArrayQuery = async <T extends ObjectLiteral>(
-    repo: Repository<T>,
-    alias: string,
-    {pagination, orderBy, filters}: RequestDataArray,
-    queryMiddle: SelectQueryBuilderFn<T> = (query) => query,
-): Promise<[T[], number]> => {
-    const _queryEnd = (query: SelectQueryBuilder<T>) => query
-        .orderBy(sqlCleanObjectQueryMap(alias, orderBy))
-        .skip(pagination.skip)
-        .take(pagination.take);
-
-    return await _queryEnd(queryMiddle(repo.createQueryBuilder(alias)).andWhere(sqlCleanObjectQueryMap(alias, filters))).getManyAndCount()
-}
+export const orderBy = (field: string, obj: object) => comma(
+    ...Object.entries(sqlCleanObjectQueryMap(field, obj)).map(([key, value]) => `${key} ${value}`)
+)

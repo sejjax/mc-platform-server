@@ -7,4 +7,4 @@ export const sqlObjectQueryMap = (field: string, obj: object) => {
     ])))
 }
 
-export const sqlCleanObjectQueryMap = (field: string, obj: object) => clean(sqlObjectQueryMap(field, obj))
+export const sqlCleanObjectQueryMap = (field: string, obj: object): object => clean(sqlObjectQueryMap(field, obj))

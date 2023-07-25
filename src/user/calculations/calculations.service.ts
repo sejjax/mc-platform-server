@@ -20,6 +20,12 @@ import { IsEnum, IsOptional } from "class-validator";
 import { sqlMap } from "../../utils/helpers/sqlMap";
 import { init1647911348140 } from "../../database/migrations/1647911348140-init";
 import { sqlif } from "../../utils/helpers/sqlif";
+import { all, comma, o, orderBy } from "../../utils/helpers/sql";
+import { transferObjectFields } from "../../helpers/transferObjectFields";
+import { omit } from "../../utils/helpers/object";
+import { Transaction } from "../../transactions/transaction.entity";
+import { formatString } from "../../helpers/formatString";
+
 
 @Injectable()
 export class CalculationsService {
@@ -108,52 +114,83 @@ export class CalculationsService {
         > {
         /* TODO: Test dates work */
         let {dateFrom, dateTo, productId, status, ...remainedFilers} = query.filters;
-
+        // @ts-ignore
+        dateFrom = typeof dateFrom === 'string' ? dateFrom : epochStart().toISOString()
+       // @ts-ignore
+        dateTo = typeof dateTo === 'string' ? dateTo : infinity().toISOString()
         const accrualType = query.filters.accrual_type;
-        const {referralPartnerId, referralFullName, product, ...remainedOrderBy} = query.orderBy;
-        const queryStart = () => this.calculationsRepo
-            .createQueryBuilder('calculation')
-            .leftJoinAndSelect('calculation.product', 'product')
-            .leftJoinAndSelect('calculation.userPartner', 'userPartner')
-            .where(`
-            calculation.payment_date between :dateFrom and :dateTo  and calculation.userId=:userId
-            `, {
-                userId: user.id,
-                dateFrom: typeof dateFrom === 'string' ? dateFrom : epochStart().toISOString(),
-                dateTo: typeof dateTo === 'string' ? dateTo : infinity().toISOString(),
-            })
-            .andWhere(remainedFilers)
-            .andWhere(sqlif(
-                typeof status === 'string' || (Array.isArray(status) && status.length > 0),
-                sqlMap('calculation.status', Array.isArray(status) ? status.map(it => it.toString()) : status)
-            ))
-            .andWhere(sqlif(typeof productId === "number", `product.id=${productId}`))
-        const queryEnd = (dbQuery: SelectQueryBuilder<Calculation>) => dbQuery
-            .orderBy(clean({
-                ...sqlObjectQueryMap('calculation', remainedOrderBy),
-                'userPartner.fullName': referralFullName,
-                'userPartner.partnerId': referralPartnerId,
-                'product.id': product
-            }))
-            .select([
-                'calculation.accrual_type',
-                'calculation.id',
-                'calculation.amount',
-                'calculation.payment_date',
-                'product.product',
-                'product.id',
-                'calculation.status',
-                'calculation.wallet_addr',
-                'calculation.percent',
-                'userPartner.fullName',
-                'userPartner.partnerId',
-            ])
-            .take(query.pagination.take)
-            .skip(query.pagination.skip)
-            .getManyAndCount();
-        const [calculations, total] = await queryEnd(queryStart())
+        const {referralPartnerId, referralFullName, product, percent, ...remainedOrderBy} = query.orderBy;
+        const d = Object.entries(sqlCleanObjectQueryMap('c', remainedFilers)).map(([key, value]) => `${key}='${value}'`);
 
+        const buildSqlQuery = (cond: boolean) => `
+                select ${cond ? `count(*)` : `
+                    c.accrual_type,
+                    c.id,
+                    c.amount,
+                    c.payment_date,
+                    d.product,
+                    d.id as "productId",
+                    t.id as "transactionId",
+                    c.status,
+                    c.wallet_addr,
+                    c.percent,
+                    up."fullName",
+                    up."partnerId"`}
+                from calculation c
+                left outer join deposit d on c."productId" = d.id
+                left outer join "transaction" t on d."transactionId" = t.id
+                left outer join "user" u on c."userId" = u.id
+                left outer join "user" up on c."userPartnerId" = up.id
+                where
+                    ${all(
+                'true',
+                'u.id=$userId',
+                o(dateFrom, () => `c.payment_date > '${dateFrom}'`),
+                o(dateTo, () => `c.payment_date < '${dateTo}'`),
+                o(productId, () => `"productId"=${productId}`),
+                // @ts-ignore 
+                o(status, () => sqlMap(`c.status`, status.map(it => it.toString())), Array.isArray(status)),
+                ...d
+        )}
+                ${!cond ? `order by ${comma(
+                orderBy('c', remainedOrderBy),
+                o(percent, () => `c.percent::float ${percent}`),
+                o(referralFullName, () => `up."fullName" ${referralFullName}`),
+                o(referralPartnerId, () => `up."partnerId" ${referralPartnerId}`),
+                o(product, () => `d.id ${product}`),
+                'c.id',
+        )}
+                offset $skip
+                limit $take` : ''}
+        `
+        const sqlQueryTotal = formatString(buildSqlQuery(true), {userId: user.id})
+        const sqlQuery = formatString(buildSqlQuery(false), {
+            userId: user.id,
+            skip: query.pagination.skip,
+            take: query.pagination.take,
+        })
 
+        const totalRes = await this.calculationsRepo.query(sqlQueryTotal) as ({ count: string })[];
+        const total = Number(totalRes[0].count);
+
+        let calculations = await this.calculationsRepo.query(sqlQuery) as any[];
+        calculations = calculations.map(it => {
+            const calc = new Calculation();
+            transferObjectFields(omit(it, ['fullName', 'partnerId', "productId", "transactionId"]), calc)
+            calc.product = new Deposit()
+            calc.product.id = it.productId
+            calc.product.product = it.product
+            calc.product.transaction = new Transaction()
+            calc.product.transaction.id = it.transactionId
+            calc.product.generateGUID()
+            delete calc.product.transaction
+
+            calc.userPartner = new User()
+
+            calc.userPartner.fullName = it.fullName
+            calc.userPartner.partnerId = it.partnerId
+            return calc
+        }) as Calculation[]
         let result;
         if (accrualType === AccrualType.product) {
             const ids: number[] = [];

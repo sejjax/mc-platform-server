@@ -1,0 +1,1 @@
+export const isArrayUniq = (array: any[]): boolean => array.length === new Set(array).size
