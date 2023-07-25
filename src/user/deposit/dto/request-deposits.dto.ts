@@ -45,7 +45,7 @@ export class RequestDepositOrderBy {
     wallet_addr?: Order
 }
 
-export class RequestDepositDto extends RequestDataArray {
+export class RequestDepositDto extends RequestDataArray<RequestDepositOrderBy> {
     @JsonField(RequestDepositFilter)
     filters: RequestDepositFilter
 

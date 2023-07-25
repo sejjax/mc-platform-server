@@ -62,7 +62,7 @@ export class RequestServiceCalculationsOrderBy {
     status?: Order
 }
 
-export class RequestServiceCalculationsDto extends RequestDataArray {
+export class RequestServiceCalculationsDto extends RequestDataArray<RequestServiceCalculationsOrderBy> {
     @JsonField(RequestServiceCalculationsFilter)
     filters: RequestServiceCalculationsFilter
 

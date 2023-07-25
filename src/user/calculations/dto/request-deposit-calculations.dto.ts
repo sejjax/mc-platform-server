@@ -47,7 +47,7 @@ export class RequestDepositCalculationsOrderBy {
     status: Order
 }
 
-export class RequestDepositCalculationsDto extends RequestDataArray {
+export class RequestDepositCalculationsDto extends RequestDataArray<RequestDepositCalculationsOrderBy> {
     @JsonField(RequestDepositCalculationsFilter)
     filters: RequestDepositCalculationsFilter
 

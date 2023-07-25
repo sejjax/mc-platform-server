@@ -55,7 +55,7 @@ export class RequestRefsCalculationsOrderBy {
     status?: Order
 }
 
-export class RequestRefsCalculationsDto extends RequestDataArray {
+export class RequestRefsCalculationsDto extends RequestDataArray<RequestRefsCalculationsOrderBy> {
     @JsonField(RequestRefsCalculationsFilter)
     filters: RequestRefsCalculationsFilter
 

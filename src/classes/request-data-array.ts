@@ -5,7 +5,7 @@ import { Order } from "../utils/types/order";
 import { IsOptional, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
 
-    export abstract class RequestDataArray {
+    export abstract class RequestDataArray<T> {
         @JsonField(Pagination)
         @IsOptional()
         pagination: Pagination = new Pagination()
@@ -17,5 +17,5 @@ import { Type } from "class-transformer";
         /* You need to apply @JsonField() in your class on this field to convert json to object */
         @IsOptional()
         /* TODO: Implement type for orderBy field. Problem: class is not assignable to {[key in string]: Order}  */
-        orderBy: any = {}
+        orderBy: Partial<{[key in keyof T]?: string | symbol}> = {}
     }
