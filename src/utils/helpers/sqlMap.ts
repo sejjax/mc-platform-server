@@ -17,7 +17,5 @@ export const sqlMap = (field: string, val?: OneMany<SqlPrimitive>): string => {
         return `true`
     if(isPrimitive(val))
         return `${field}=${sqlMapPrimitive(val)}`
-    console.log(val)
-    // @ts-ignore
     return `${field} in (${val.map(sqlMapPrimitive).join(', ')})`
 }
