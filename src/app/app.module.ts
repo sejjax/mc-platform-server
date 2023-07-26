@@ -1,10 +1,11 @@
 import {
-  appConfig,
-  authConfig,
-  mailConfig,
-  databaseConfig,
-  frontendConfig,
-  fileConfig,
+    appConfig,
+    authConfig,
+    mailConfig,
+    databaseConfig,
+    frontendConfig,
+    fileConfig,
+    strapiConfig
 } from 'src/config';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -22,25 +23,34 @@ import { ChangeDefaultWalletAddressModule } from 'src/change-default-wallet-addr
 import { PromotionModule } from 'src/promotion/promotion.module';
 
 @Module({
-  imports: [
-    ServeStaticModule.forRoot({
-      serveRoot: `/api/compodoc`,
-      rootPath: join(__dirname, '..', 'docs'),
-    }),
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [appConfig, authConfig, mailConfig, databaseConfig, frontendConfig, fileConfig],
-    }),
-    FilesModule,
-    AuthModule,
-    DatabaseModule,
-    MailModule,
-    NotificationsModule,
-    UserModule,
-    TransactionModule,
-    MetricsModule,
-    ChangeDefaultWalletAddressModule,
-    PromotionModule,
-  ],
+    imports: [
+        ServeStaticModule.forRoot({
+            serveRoot: `/api/compodoc`,
+            rootPath: join(__dirname, '..', 'docs'),
+        }),
+        ConfigModule.forRoot({
+            isGlobal: true,
+            load: [
+                appConfig,
+                authConfig,
+                mailConfig,
+                databaseConfig,
+                frontendConfig,
+                fileConfig,
+                strapiConfig
+            ],
+        }),
+        FilesModule,
+        AuthModule,
+        DatabaseModule,
+        MailModule,
+        NotificationsModule,
+        UserModule,
+        TransactionModule,
+        MetricsModule,
+        ChangeDefaultWalletAddressModule,
+        PromotionModule,
+    ],
 })
-export class AppModule {}
+export class AppModule {
+}

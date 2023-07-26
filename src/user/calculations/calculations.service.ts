@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserWithRefs } from 'src/metrics/metrics.types';
 import { User } from 'src/users/user.entity';
@@ -19,15 +19,18 @@ import { transferObjectFields } from "../../helpers/transferObjectFields";
 import { omit } from "../../utils/helpers/object";
 import { Transaction } from "../../transactions/transaction.entity";
 import { formatString } from "../../helpers/formatString";
+import { mergeCalculationsWithProjects } from "../deposit/helpers/mergeCalculationsWithProjects";
+import { Product } from "../product/product.entity";
+import { ProductService } from "../product/product.service";
 
 
 @Injectable()
 export class CalculationsService {
     constructor(
+        private readonly productService: ProductService,
         @InjectRepository(Calculation)
         private calculationsRepo: Repository<Calculation>,
-    ) {
-    }
+    ) {}
 
     async incomeForPeriod(user: User): Promise<ResponseIncomeForPeriodDto> {
         const [{
@@ -130,7 +133,9 @@ export class CalculationsService {
                     c.wallet_addr,
                     c.percent,
                     up."fullName",
-                    up."partnerId"`}
+                    up."partnerId",
+                    d.product_service_description
+                    `}
                 from calculation c
                 left outer join deposit d on c."productId" = d.id
                 left outer join "transaction" t on d."transactionId" = t.id
@@ -174,6 +179,7 @@ export class CalculationsService {
             calc.product = new Deposit()
             calc.product.id = it.productId
             calc.product.product = it.product
+            calc.product.product_service_description = it.product_service_description
             calc.product.transaction = new Transaction()
             calc.product.transaction.id = it.transactionId
             calc.product.generateGUID()
@@ -196,13 +202,17 @@ export class CalculationsService {
                 ...calculation,
                 buyOrder: ids.indexOf(calculation.product.id) + 1,
             }));
-        } else {
-            result = calculations
-        }
+        } else  result = calculations
+
+
+        // const projects = await this.projectsService.getAllProjects()
+        const projects = []
+        const finalResult = mergeCalculationsWithProjects(result, projects)
+
         return dataArrayResponse({
             ...query.pagination,
             totalItemsCount: total,
-            items: result
+            items: finalResult
         });
     }
 

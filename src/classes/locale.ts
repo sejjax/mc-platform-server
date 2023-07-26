@@ -1,4 +1,4 @@
-export class Locale {
-    en = 'en'
-    ru = 'ru'
+export enum Locale {
+    EN = 'en',
+    RU = 'ru'
 }

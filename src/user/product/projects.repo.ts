@@ -1,22 +1,25 @@
-export class ProjectEntity {}
 
-export class Project {
+import { Injectable } from "@nestjs/common";
+import { Product } from "./product.entity";
+
+@Injectable()
+export class ProductRepo {
     constructor(
-        private _projects: ProjectEntity[] = []
+        private _projects: Product[] = []
     ) {}
-    getAll(): ProjectEntity[] {
+    getAll(): Product[] {
         return this._projects
     }
 
-    add(project: ProjectEntity) {
+    add(project: Product) {
         this._projects.push(project)
     }
 
-    addMany(projects: ProjectEntity[]) {
+    addMany(projects: Product[]) {
         this._projects = [...this._projects, ...projects]
     }
 
-    delete(project: ProjectEntity) {
+    delete(project: Product) {
         this._projects.splice(this._projects.indexOf(project), 1)
     }
 
