@@ -48,7 +48,7 @@ export class ProductService {
     }
 
     async getAllProjects(): Promise<Product[]> {
-        // if(empty(this.projectsRepo.getAll()))
+        // if(isEmpty(this.projectsRepo.getAll()))
         //     return this.fetchAndStoreProjects()
         // return this.projectsRepo.getAll()
         return []

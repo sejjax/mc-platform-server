@@ -1,4 +1,4 @@
-export const len = <T>(val: T[] | string | Set<T> | Iterable<T>) => {
+export const lengthOf = <T>(val: T[] | string | Set<T> | Iterable<T>) => {
     if(Array.isArray(val) || typeof val === "string")
         return val.length
     if(val instanceof Set)

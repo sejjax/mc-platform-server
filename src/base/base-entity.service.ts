@@ -7,7 +7,7 @@ import {
   SelectQueryBuilder,
 } from 'typeorm';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-isEmpty-interface
 export interface EmptyObject {}
 
 export type ID = number | string;
