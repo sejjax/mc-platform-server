@@ -22,15 +22,24 @@ import { formatString } from "../../helpers/formatString";
 import { mergeCalculationsWithProjects } from "../deposit/helpers/mergeCalculationsWithProjects";
 import { Product } from "../product/product.entity";
 import { ProductService } from "../product/product.service";
+import { HttpModule } from "@nestjs/axios";
+import { isEmpty } from "../../helpers/isEmpty";
+import { absentLocalesCheck } from "../deposit/helpers/absentLocalesCheck";
+import { absentLocalesError } from "../deposit/helpers/absentLocalesError";
 
 
 @Injectable()
 export class CalculationsService {
+    private readonly productService: ProductService
     constructor(
-        private readonly productService: ProductService,
         @InjectRepository(Calculation)
         private calculationsRepo: Repository<Calculation>,
-    ) {}
+        // import http service
+        // сделать функции хелпером
+        // сделать хоть как-то
+    ) {
+        this.productService = new ProductService()
+    }
 
     async incomeForPeriod(user: User): Promise<ResponseIncomeForPeriodDto> {
         const [{
@@ -206,7 +215,11 @@ export class CalculationsService {
 
 
         // const projects = await this.projectsService.getAllProjects()
-        const projects = []
+        let projects = await this.productService.fetchProjects(query.locale)
+
+        const absentLocales = absentLocalesCheck(calculations.map(calc => calc.product), projects, query.locale)
+        if(absentLocales)
+            console.log(absentLocalesError(absentLocales))
         const finalResult = mergeCalculationsWithProjects(result, projects)
 
         return dataArrayResponse({

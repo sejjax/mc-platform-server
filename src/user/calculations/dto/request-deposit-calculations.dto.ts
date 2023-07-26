@@ -6,6 +6,7 @@ import { AccrualType, Status } from "../calculations.types";
 import { OneMany } from "../../../utils/types/oneMany";
 import { Order } from "../../../utils/types/order";
 import { Id } from "../../deposit/deposit.types";
+import { Locale } from "../../../classes/locale";
 
 export class RequestDepositCalculationsFilter extends OptionalDateDto {
     @IsOptional()
@@ -53,4 +54,7 @@ export class RequestDepositCalculationsDto extends RequestDataArray<RequestDepos
 
     @JsonField(RequestDepositCalculationsOrderBy)
     orderBy: RequestDepositCalculationsOrderBy
+
+    @IsEnum(Locale)
+    locale: Locale = Locale.EN
 }

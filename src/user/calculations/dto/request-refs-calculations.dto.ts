@@ -5,6 +5,7 @@ import { IsEnum, IsOptional } from "class-validator";
 import { AccrualType, Status } from "../calculations.types";
 import { OneMany } from "../../../utils/types/oneMany";
 import { Order } from "../../../utils/types/order";
+import { Locale } from "../../../classes/locale";
 
 export class RequestRefsCalculationsFilter extends OptionalDateDto {
     @IsOptional()
@@ -61,4 +62,7 @@ export class RequestRefsCalculationsDto extends RequestDataArray<RequestRefsCalc
 
     @JsonField(RequestRefsCalculationsOrderBy)
     orderBy: RequestRefsCalculationsOrderBy
+
+    @IsEnum(Locale)
+    locale: Locale = Locale.EN
 }

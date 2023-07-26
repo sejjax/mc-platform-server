@@ -3,6 +3,7 @@ import { RequestDataArray } from "../../../classes/request-data-array";
 import { OptionalDateDto } from "../../calculations/dto/date.dto";
 import { IsBoolean, IsEnum, IsOptional } from "class-validator";
 import { Order } from "../../../utils/types/order";
+import { Locale } from "../../../classes/locale";
 
 
 export class RequestDepositFilter extends OptionalDateDto {
@@ -51,4 +52,7 @@ export class RequestDepositDto extends RequestDataArray<RequestDepositOrderBy> {
 
     @JsonField(RequestDepositOrderBy)
     orderBy: RequestDepositOrderBy
+
+    @IsEnum(Locale)
+    locale: Locale = Locale.EN
 }

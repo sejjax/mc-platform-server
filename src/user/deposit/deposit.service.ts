@@ -14,13 +14,20 @@ import { dataArrayResponse } from "../../utils/helpers/dataArrayResponse";
 import { sqlMap } from "../../utils/helpers/sqlMap";
 import { clean } from "../../utils/helpers/clean";
 import { sqlObjectQueryMap } from "../../utils/helpers/sqlObjectQueryMap";
+import { ProductService } from "../product/product.service";
+import { absentLocalesCheck } from "./helpers/absentLocalesCheck";
+import { absentLocalesError } from "./helpers/absentLocalesError";
+import { mergeCalculationsWithProjects } from "./helpers/mergeCalculationsWithProjects";
+import { mergeDepositsWithProjects } from "./helpers/mergeDepositsWithProjects";
 
 @Injectable()
 export class DepositService {
+    private readonly productService: ProductService
     constructor(
         @InjectRepository(Deposit)
         private depositRepo: Repository<Deposit>,
     ) {
+        this.productService = new ProductService()
     }
 
     async findById(id: Id): Promise<Deposit | undefined> {
@@ -30,7 +37,8 @@ export class DepositService {
     async findByUser(user: User, {
         pagination,
         filters,
-        orderBy
+        orderBy,
+        locale
     }: RequestDepositDto, idOrGuid?: string): Promise<ResponseDataArray<Deposit> | Deposit> {
         let id = undefined;
         if (idOrGuid != null && isGuid(idOrGuid))
@@ -61,10 +69,18 @@ export class DepositService {
             .skip(pagination.skip)
             .take(pagination.take)
             .getManyAndCount()
+
+        let projects = await this.productService.fetchProjects(locale)
+
+        const absentLocales = absentLocalesCheck(result, projects, locale)
+        if(absentLocales)
+            console.log(absentLocalesError(absentLocales))
+        const finalResult = mergeDepositsWithProjects(result, projects)
+
         return dataArrayResponse({
             ...pagination,
             totalItemsCount: total,
-            items: result
+            items: finalResult
         })
     }
 
