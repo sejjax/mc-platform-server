@@ -45,18 +45,18 @@ export class CalculationsService {
             select (
            select cast(coalesce(sum(c.amount), 0) as float)
            from "user" u  left outer join calculation c on u.id=c."userId"
-           where c.payment_date between date_trunc('week', now()) and now() and c.accrual_type='product' and u.id=$1
+           where c.payment_date between date_trunc('week', now()) and now() and c.accrual_type='product' and c.status!='nulled' and u.id=$1
        ) as "currentWeekIncome",
        (
            select cast(coalesce(sum(c.amount), 0) as float)
            from "user" u left outer join calculation c on u.id=c."userId"
-           where c.payment_date between date_trunc('month', now()) and date_trunc('month', now()) + interval '1 month' and c.accrual_type='product' and u.id=$1
+           where c.payment_date between date_trunc('month', now()) and date_trunc('month', now()) + interval '1 month' and c.accrual_type='product' and c.status!='nulled' and u.id=$1
 
        ) as "currentMonthIncome",
        (
            select cast(coalesce(sum(c.amount), 0) as float)
            from "user" u left outer join calculation c on u.id=c."userId"
-           where c.payment_date between date_trunc('month', now()) + interval '1 month' and date_trunc('month', now()) + interval '2 month' and c.accrual_type='product' and u.id=$1
+           where c.payment_date between date_trunc('month', now()) + interval '1 month' and date_trunc('month', now()) + interval '2 month' and c.accrual_type='product' and c.status!='nulled' and u.id=$1
        ) as "nextMonthIncome"`,
             [
                 user.id,
