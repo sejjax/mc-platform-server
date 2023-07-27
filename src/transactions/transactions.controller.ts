@@ -11,15 +11,15 @@ import { TransactionsService } from './transactions.service';
 @ApiTags('Transactions')
 @ApiBearerAuth()
 export class TransactionsController {
-  constructor(private transactionsService: TransactionsService) {}
+    constructor(private transactionsService: TransactionsService) {}
 
   @Post()
-  async createTransaction(@AuthUser() user: User, @Body() body: CreateTransactionDto) {
-    return this.transactionsService.createTransaction(body, user);
-  }
+    async createTransaction(@AuthUser() user: User, @Body() body: CreateTransactionDto) {
+        return this.transactionsService.createTransaction(body, user);
+    }
 
   @Get()
   async checkTransaction(@AuthUser() user: User, @Query('transactionId') transactionId: string) {
-    return this.transactionsService.checkTransaction(user, +transactionId);
+      return this.transactionsService.checkTransaction(user, +transactionId);
   }
 }

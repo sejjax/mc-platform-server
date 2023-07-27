@@ -7,29 +7,29 @@ import { CreateBalanceDto } from 'src/user/balance/dto/create-balance.dto';
 
 @Injectable()
 export class BalanceService {
-  constructor(
+    constructor(
     @InjectRepository(Balance)
     private userBalanceRepo: Repository<Balance>,
-  ) {}
+    ) {}
 
-  async createOrUpdate(createUserBalanceDto: CreateBalanceDto) {
-    const inserted = await this.userBalanceRepo.upsert(createUserBalanceDto, [
-      'user',
-    ]);
-    return await this.userBalanceRepo.findOne({
-      id: inserted.identifiers[0].id,
-    });
-  }
+    async createOrUpdate(createUserBalanceDto: CreateBalanceDto) {
+        const inserted = await this.userBalanceRepo.upsert(createUserBalanceDto, [
+            'user',
+        ]);
+        return await this.userBalanceRepo.findOne({
+            id: inserted.identifiers[0].id,
+        });
+    }
 
-  async findByUser(user: User) {
-    return (
-      (await this.userBalanceRepo.findOne({
-        where: { user },
-      })) ||
+    async findByUser(user: User) {
+        return (
+            (await this.userBalanceRepo.findOne({
+                where: { user },
+            })) ||
       ({
-        available_to_withdraw_balance: 0,
-        current_platform_balance: 0,
+          available_to_withdraw_balance: 0,
+          current_platform_balance: 0,
       } as Balance)
-    );
-  }
+        );
+    }
 }

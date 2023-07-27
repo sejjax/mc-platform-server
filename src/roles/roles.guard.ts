@@ -9,33 +9,33 @@ import { ROLES_KEY } from './roles.decorator';
 
 @Injectable()
 export class RoleGuard implements CanActivate {
-  constructor(
+    constructor(
     private reflector: Reflector,
     @InjectRepository(User) private userRepo: Repository<User>,
-  ) {}
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
-    if (!requiredRoles) {
-      return true;
+    ) {}
+    async canActivate(context: ExecutionContext): Promise<boolean> {
+        const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
+            context.getHandler(),
+            context.getClass(),
+        ]);
+        if (!requiredRoles) {
+            return true;
+        }
+
+        const { user }: { user: User } = context.switchToHttp().getRequest();
+        const userRole: { id: number; role: RoleEntity } = await this.userRepo
+            .createQueryBuilder('user')
+            .select('user.id')
+            .leftJoinAndSelect('user.role', 'role')
+            .where('user.id = :id', { id: user.id })
+            .getOne();
+
+        if (!userRole.role) return false;
+        const accessArray = JSON.parse(userRole.role.access) as string[];
+
+        for (const requiredRole of requiredRoles) {
+            if (!accessArray.includes(requiredRole)) return false;
+        }
+        return true;
     }
-
-    const { user }: { user: User } = context.switchToHttp().getRequest();
-    const userRole: { id: number; role: RoleEntity } = await this.userRepo
-      .createQueryBuilder('user')
-      .select('user.id')
-      .leftJoinAndSelect('user.role', 'role')
-      .where('user.id = :id', { id: user.id })
-      .getOne();
-
-    if (!userRole.role) return false;
-    const accessArray = JSON.parse(userRole.role.access) as string[];
-
-    for (const requiredRole of requiredRoles) {
-      if (!accessArray.includes(requiredRole)) return false;
-    }
-    return true;
-  }
 }

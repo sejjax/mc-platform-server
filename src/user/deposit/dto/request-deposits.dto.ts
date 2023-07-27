@@ -1,58 +1,58 @@
-import { JsonField } from "../../../utils/decorators/json-field.decorator";
-import { RequestDataArray } from "../../../classes/request-data-array";
-import { OptionalDateDto } from "../../calculations/dto/date.dto";
-import { IsBoolean, IsEnum, IsOptional } from "class-validator";
-import { Order } from "../../../utils/types/order";
-import { Locale } from "../../../classes/locale";
+import { JsonField } from '../../../utils/decorators/json-field.decorator';
+import { RequestDataArray } from '../../../classes/request-data-array';
+import { OptionalDateDto } from '../../calculations/dto/date.dto';
+import { IsBoolean, IsEnum, IsOptional } from 'class-validator';
+import { Order } from '../../../utils/types/order';
+import { Locale } from '../../../classes/locale';
 
 
 export class RequestDepositFilter extends OptionalDateDto {
     @IsOptional()
     @IsBoolean()
-    isClosed?: boolean
+    isClosed?: boolean;
 }
 
 export class RequestDepositOrderBy {
     @IsEnum(Order)
     @IsOptional()
-    date?: Order
+    date?: Order;
 
     @IsEnum(Order)
     @IsOptional()
-    product?: Order
+    product?: Order;
 
     @IsEnum(Order)
     @IsOptional()
-    currency_amount?: Order
+    currency_amount?: Order;
 
     @IsEnum(Order)
     @IsOptional()
-    apy?: Order
+    apy?: Order;
 
     @IsEnum(Order)
     @IsOptional()
-    investment_period?: Order
+    investment_period?: Order;
 
     @IsEnum(Order)
     @IsOptional()
-    payment_period ?: Order
+    payment_period ?: Order;
 
     @IsEnum(Order)
     @IsOptional()
-    earn_amount?: Order
+    earn_amount?: Order;
 
     @IsEnum(Order)
     @IsOptional()
-    wallet_addr?: Order
+    wallet_addr?: Order;
 }
 
 export class RequestDepositDto extends RequestDataArray<RequestDepositOrderBy> {
     @JsonField(RequestDepositFilter)
-    filters: RequestDepositFilter
+    filters: RequestDepositFilter;
 
     @JsonField(RequestDepositOrderBy)
-    orderBy: RequestDepositOrderBy
+    orderBy: RequestDepositOrderBy;
 
     @IsEnum(Locale)
-    locale: Locale = Locale.EN
+    locale: Locale = Locale.EN;
 }

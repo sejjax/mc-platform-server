@@ -16,53 +16,53 @@ import { RoleGuard } from 'src/roles/roles.guard';
 @ApiTags('Notifications')
 @ApiBearerAuth()
 export class NotificationsController {
-  constructor(private notificationsService: NotificationsService) {}
+    constructor(private notificationsService: NotificationsService) {}
 
   @Get('/')
   // : Promise<NotificationsDto[]>
-  getNotifications(@AuthUser() user: User) {
-    return this.notificationsService.getNotifications(user.id);
-  }
+    getNotifications(@AuthUser() user: User) {
+        return this.notificationsService.getNotifications(user.id);
+    }
 
   @Get('/all')
   @Roles(Role.notifications)
   @UseGuards(RoleGuard)
   getAllNotifications() {
-    return this.notificationsService.getAllNotifications();
+      return this.notificationsService.getAllNotifications();
   }
 
   @Get('/types')
   @Roles(Role.notifications)
   @UseGuards(RoleGuard)
   getNotificationsTypes() {
-    return this.notificationsService.getNotificationsType();
+      return this.notificationsService.getNotificationsType();
   }
 
   @Get('/:notificationId')
   @Roles(Role.notifications)
   @UseGuards(RoleGuard)
   getOneNotification(@Param('notificationId') notificationId: string) {
-    return this.notificationsService.getOneNotification(+notificationId);
+      return this.notificationsService.getOneNotification(+notificationId);
   }
 
   @Roles(Role.notifications)
   @UseGuards(RoleGuard)
   @Post()
   addNotification(@Body() body: CreateNotificationDto) {
-    return this.notificationsService.addNotification(body);
+      return this.notificationsService.addNotification(body);
   }
 
   @Roles(Role.notifications)
   @UseGuards(RoleGuard)
   @Put()
   editNotification(@Body() body: UpdateNotificationDto) {
-    return this.notificationsService.editNotification(body);
+      return this.notificationsService.editNotification(body);
   }
 
   @Roles(Role.notifications)
   @UseGuards(RoleGuard)
   @Delete()
   deleteNotification(@Body() body: DeleteNotificationDto) {
-    return this.notificationsService.deleteNotification(body);
+      return this.notificationsService.deleteNotification(body);
   }
 }

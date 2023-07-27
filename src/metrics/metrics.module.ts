@@ -1,6 +1,5 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FilesService } from 'src/files/files.service';
 import { CalculationsService } from 'src/user/calculations/calculations.service';
@@ -12,8 +11,8 @@ import { MetricsController } from './metrics.controller';
 import { MetricsService } from './metrics.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Deposit, Calculation]), HttpModule],
-  providers: [MetricsService, UsersService, FilesService, CalculationsService],
-  controllers: [MetricsController],
+    imports: [TypeOrmModule.forFeature([User, Deposit, Calculation]), HttpModule],
+    providers: [MetricsService, UsersService, FilesService, CalculationsService],
+    controllers: [MetricsController],
 })
 export class MetricsModule {}

@@ -1,1 +1,1 @@
-export const sqlif = (value: boolean, str: string) => value ? str : 'true'
+export const sqlif = (value: boolean, str: string) => value ? str : 'true';

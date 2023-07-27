@@ -7,43 +7,43 @@ const whiteList = ['image/jpeg', 'image/gif', 'image/png', 'image/webp'];
 
 @Injectable()
 export class MulterConfigService {
-  constructor(private configService: ConfigService) {}
+    constructor(private configService: ConfigService) {}
 
-  createMulterOptions() {
-    return {
-      fileFilter: (request, file, callback) => {
-        if (!whiteList.includes(file.mimetype)) {
-          return callback(
-            new HttpException(
-              {
-                status: HttpStatus.UNPROCESSABLE_ENTITY,
-                errors: {
-                  file: 'cantUploadFileType',
+    createMulterOptions() {
+        return {
+            fileFilter: (request, file, callback) => {
+                if (!whiteList.includes(file.mimetype)) {
+                    return callback(
+                        new HttpException(
+                            {
+                                status: HttpStatus.UNPROCESSABLE_ENTITY,
+                                errors: {
+                                    file: 'cantUploadFileType',
+                                },
+                            },
+                            HttpStatus.UNPROCESSABLE_ENTITY,
+                        ),
+                        false,
+                    );
+                }
+
+                callback(null, true);
+            },
+            storage: diskStorage({
+                destination: './static',
+                filename: (request, file, callback) => {
+                    callback(
+                        null,
+                        `${randomStringGenerator()}.${file.originalname
+                            .split('.')
+                            .pop()
+                            .toLowerCase()}`,
+                    );
                 },
-              },
-              HttpStatus.UNPROCESSABLE_ENTITY,
-            ),
-            false,
-          );
-        }
-
-        callback(null, true);
-      },
-      storage: diskStorage({
-        destination: './static',
-        filename: (request, file, callback) => {
-          callback(
-            null,
-            `${randomStringGenerator()}.${file.originalname
-              .split('.')
-              .pop()
-              .toLowerCase()}`,
-          );
-        },
-      }),
-      limits: {
-        fileSize: this.configService.get('file.maxFileSize'),
-      },
-    };
-  }
+            }),
+            limits: {
+                fileSize: this.configService.get('file.maxFileSize'),
+            },
+        };
+    }
 }

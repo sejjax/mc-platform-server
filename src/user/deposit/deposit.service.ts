@@ -4,30 +4,29 @@ import { Deposit } from 'src/user/deposit/entities/deposit.entity';
 import { User } from 'src/users/user.entity';
 import { Repository } from 'typeorm';
 import { Id, InvestorProDepositAmountReponse } from './deposit.types';
-import { GetInvestmentSummaryDto } from "./dto/get-investment-summary.dto";
-import { depositIdFromGuid } from "./helpers/depositIdFromGuid";
-import { RequestDepositDto } from "./dto/request-deposits.dto";
-import { isGuid } from "./helpers/isGuid";
-import { dbFormat, epochStart, infinity, now } from "../../utils/helpers/date";
-import { ResponseDataArray } from "../../classes/response-data-array";
-import { dataArrayResponse } from "../../utils/helpers/dataArrayResponse";
-import { sqlMap } from "../../utils/helpers/sqlMap";
-import { clean } from "../../utils/helpers/clean";
-import { sqlObjectQueryMap } from "../../utils/helpers/sqlObjectQueryMap";
-import { ProductService } from "../product/product.service";
-import { absentLocalesCheck } from "./helpers/absentLocalesCheck";
-import { absentLocalesError } from "./helpers/absentLocalesError";
-import { mergeCalculationsWithProjects } from "./helpers/mergeCalculationsWithProjects";
-import { mergeDepositsWithProjects } from "./helpers/mergeDepositsWithProjects";
+import { GetInvestmentSummaryDto } from './dto/get-investment-summary.dto';
+import { depositIdFromGuid } from './helpers/depositIdFromGuid';
+import { RequestDepositDto } from './dto/request-deposits.dto';
+import { isGuid } from './helpers/isGuid';
+import { epochStart, infinity } from '../../utils/helpers/date';
+import { ResponseDataArray } from '../../classes/response-data-array';
+import { dataArrayResponse } from '../../utils/helpers/dataArrayResponse';
+import { clean } from '../../utils/helpers/clean';
+import { sqlObjectQueryMap } from '../../utils/helpers/sqlObjectQueryMap';
+import { ProductService } from '../product/product.service';
+import { absentLocalesCheck } from './helpers/absentLocalesCheck';
+import { absentLocalesError } from './helpers/absentLocalesError';
+import { mergeDepositsWithProjects } from './helpers/mergeDepositsWithProjects';
+import { omit } from '../../utils/helpers/object';
 
 @Injectable()
 export class DepositService {
-    private readonly productService: ProductService
+    private readonly productService: ProductService;
     constructor(
         @InjectRepository(Deposit)
         private depositRepo: Repository<Deposit>,
     ) {
-        this.productService = new ProductService()
+        this.productService = new ProductService();
     }
 
     async findById(id: Id): Promise<Deposit | undefined> {
@@ -42,17 +41,18 @@ export class DepositService {
     }: RequestDepositDto, idOrGuid?: string): Promise<ResponseDataArray<Deposit> | Deposit> {
         let id = undefined;
         if (idOrGuid != null && isGuid(idOrGuid))
-            id = depositIdFromGuid(idOrGuid)
+            id = depositIdFromGuid(idOrGuid);
         else if (idOrGuid != null)
-            id = Number(idOrGuid)
+            id = Number(idOrGuid);
 
         if (id != null)
-            return await this.depositRepo.findOne(id)
+            return await this.depositRepo.findOne(id);
 
-        let {dateFrom, dateTo, ...remainedFilters} = filters;
+        const {dateFrom, dateTo, ...remainedFilters} = filters;
         // TODO: Check dates working
 
-        const {product, ...remainedOrderBy} = orderBy;
+        // const {product, ...remainedOrderBy} = orderBy;
+        const remainedOrderBy = omit(orderBy, ['product']);
         const [result, total] = await this.depositRepo
             .createQueryBuilder('d')
             .where({user, ...clean(remainedFilters)})
@@ -68,29 +68,29 @@ export class DepositService {
             }))
             .skip(pagination.skip)
             .take(pagination.take)
-            .getManyAndCount()
+            .getManyAndCount();
 
-        let projects = await this.productService.fetchProjects(locale)
+        const projects = await this.productService.fetchProjects(locale);
 
-        const absentLocales = absentLocalesCheck(result, projects, locale)
+        const absentLocales = absentLocalesCheck(result, projects, locale);
         if(absentLocales)
-            console.log(absentLocalesError(absentLocales))
-        const finalResult = mergeDepositsWithProjects(result, projects)
+            console.log(absentLocalesError(absentLocales));
+        const finalResult = mergeDepositsWithProjects(result, projects);
 
         return dataArrayResponse({
             ...pagination,
             totalItemsCount: total,
             items: finalResult
-        })
+        });
     }
 
     async getInvestorProAmountByUser(userId: number): Promise<InvestorProDepositAmountReponse> {
         const [{sum: allPackages}] = (await this.depositRepo.query(
-            `select cast(coalesce(sum(d.currency_amount),0)as float) as sum from "public".deposit d where d.product_service_description like 'investor_pro%' and d.product_service_description != 'investor_pro_gamefi'`,
+            'select cast(coalesce(sum(d.currency_amount),0)as float) as sum from "public".deposit d where d.product_service_description like \'investor_pro%\' and d.product_service_description != \'investor_pro_gamefi\'',
         )) as [{ sum: number }];
 
         const [{sum: perUser}] = (await this.depositRepo.query(
-            `select cast(coalesce(sum(d.currency_amount),0)as float) as sum from "public".deposit d where d.product_service_description like 'investor_pro%' and d.product_service_description != 'investor_pro_gamefi' and d."userId" = $1`,
+            'select cast(coalesce(sum(d.currency_amount),0)as float) as sum from "public".deposit d where d.product_service_description like \'investor_pro%\' and d.product_service_description != \'investor_pro_gamefi\' and d."userId" = $1',
             [userId],
         )) as [{ sum: number }];
 

@@ -7,24 +7,24 @@ import { QueryFailedError } from 'typeorm';
 
 @Catch(QueryFailedError)
 export class QueryFailedFilter implements ExceptionFilter<QueryFailedError> {
-  constructor(public reflector: Reflector) {}
+    constructor(public reflector: Reflector) {}
 
-  catch(
-    exception: QueryFailedError & { constraint?: string },
-    host: ArgumentsHost,
-  ) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
+    catch(
+        exception: QueryFailedError & { constraint?: string },
+        host: ArgumentsHost,
+    ) {
+        const ctx = host.switchToHttp();
+        const response = ctx.getResponse<Response>();
 
-    const status = exception.constraint?.startsWith('UQ')
-      ? HttpStatus.CONFLICT
-      : HttpStatus.INTERNAL_SERVER_ERROR;
+        const status = exception.constraint?.startsWith('UQ')
+            ? HttpStatus.CONFLICT
+            : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    response.status(status).json({
-      statusCode: status,
-      error: STATUS_CODES[status],
-      message: exception.driverError.detail || 'Unknown error',
-      details: exception,
-    });
-  }
+        response.status(status).json({
+            statusCode: status,
+            error: STATUS_CODES[status],
+            message: exception.driverError.detail || 'Unknown error',
+            details: exception,
+        });
+    }
 }

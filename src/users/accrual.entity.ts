@@ -1,10 +1,10 @@
 import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
 } from 'typeorm';
 import { Package } from './package.entity';
 import { User } from './user.entity';
@@ -12,26 +12,26 @@ import { User } from './user.entity';
 @Entity()
 export class Accrual {
   @PrimaryGeneratedColumn()
-  id: number;
+      id: number;
 
   @ManyToOne(() => Package, (order) => order.accruals)
-  order: Package;
+      order: Package;
 
   @ManyToOne(() => User, (user) => user.generatedAccruals)
-  sourceUser: User;
+      sourceUser: User;
 
   @ManyToOne(() => User, (user) => user.accruals)
-  targetUser: User;
+      targetUser: User;
 
   @Column({ type: 'int4' })
-  line: number;
+      line: number;
 
   @Column({ type: 'decimal' })
-  value: string;
+      value: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+      createdAt: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+      updatedAt: Date;
 }

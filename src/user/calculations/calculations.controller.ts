@@ -4,11 +4,10 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/users/user.entity';
 import { AuthUser } from 'src/utils/decorators/auth-user.decorator';
 import { CalculationsService } from './calculations.service';
-import { AccrualType } from "./calculations.types";
-import { ResponseIncomeForPeriodDto } from "./dto/response-income-for-period.dto";
-import { RequestRefsCalculationsDto } from "./dto/request-refs-calculations.dto";
-import { RequestDepositCalculationsDto } from "./dto/request-deposit-calculations.dto";
-import { RequestIncomeForPeriodDto } from "./dto/request-income-for-period.dto";
+import { AccrualType } from './calculations.types';
+import { ResponseIncomeForPeriodDto } from './dto/response-income-for-period.dto';
+import { RequestRefsCalculationsDto } from './dto/request-refs-calculations.dto';
+import { RequestDepositCalculationsDto } from './dto/request-deposit-calculations.dto';
 
 
 @Controller('calculations')
@@ -16,33 +15,33 @@ import { RequestIncomeForPeriodDto } from "./dto/request-income-for-period.dto";
 @ApiBearerAuth()
 @ApiTags('User calculations')
 export class CalculationsController {
-  constructor(private calculationsService: CalculationsService) {}
+    constructor(private calculationsService: CalculationsService) {}
 
   @Get('/referrals')
-  async getRefsCalculations(
+    async getRefsCalculations(
       @AuthUser() user: User,
       @Query() query: RequestRefsCalculationsDto
-  ) {
-    return await this.calculationsService.getCalculationsByUser(user, query);
-  }
+    ) {
+        return await this.calculationsService.getCalculationsByUser(user, query);
+    }
   @Get('/deposit')
   async getDepositCalculations(
       @AuthUser() user: User,
       @Query() query: RequestDepositCalculationsDto
   ) {
-    return await this.calculationsService.getCalculationsByUser(user, {
-      ...query,
-      filters: {
-        ...query.filters,
-        accrual_type: AccrualType.product,
-      }
-    });
+      return await this.calculationsService.getCalculationsByUser(user, {
+          ...query,
+          filters: {
+              ...query.filters,
+              accrual_type: AccrualType.product,
+          }
+      });
   }
 
     @Get('/income-for-period')
-    async calculationsSummary(
+  async calculationsSummary(
         @AuthUser() user: User
-    ): Promise<ResponseIncomeForPeriodDto> {
-        return await this.calculationsService.incomeForPeriod(user)
-    }
+  ): Promise<ResponseIncomeForPeriodDto> {
+      return await this.calculationsService.incomeForPeriod(user);
+  }
 }

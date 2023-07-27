@@ -1,3 +1,3 @@
 export const clean = (obj: object) => Object.fromEntries(Object.entries(obj).filter(
-    ([_, value]) => value != null
-))
+    keyValue => keyValue[1] != null
+));

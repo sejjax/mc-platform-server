@@ -8,13 +8,13 @@ import { FilesController } from './files.controller';
 import { MulterConfigService } from './multer-config.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([File]),
-    MulterModule.registerAsync({
-      useClass: MulterConfigService,
-    }),
-  ],
-  controllers: [FilesController],
-  providers: [ConfigModule, ConfigService, FilesService],
+    imports: [
+        TypeOrmModule.forFeature([File]),
+        MulterModule.registerAsync({
+            useClass: MulterConfigService,
+        }),
+    ],
+    controllers: [FilesController],
+    providers: [ConfigModule, ConfigService, FilesService],
 })
 export class FilesModule {}

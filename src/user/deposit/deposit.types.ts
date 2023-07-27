@@ -12,11 +12,11 @@ export interface IReferalsArrayItem {
 }
 
 export const DepositPackage = {
-  basic1: 1,
-  basic5: 4,
-  basic2: 1,
-  basic3: 1,
-  basic4: 3,
+    basic1: 1,
+    basic5: 4,
+    basic2: 1,
+    basic3: 1,
+    basic4: 3,
 };
 
 export enum DepositStatus {

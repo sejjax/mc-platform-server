@@ -1,7 +1,7 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import {MigrationInterface, QueryRunner} from 'typeorm';
 
 export class addIsDepositClosedColumn1689752491697 implements MigrationInterface {
-    name = 'addIsDepositClosedColumn1689752491697'
+    name = 'addIsDepositClosedColumn1689752491697';
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
@@ -40,7 +40,7 @@ export class addIsDepositClosedColumn1689752491697 implements MigrationInterface
             drop trigger update_deposit_is_closed on deposit;
             drop function update_deposit_is_closed;
             drop function is_deposit_closed;
-        `)
+        `);
     }
 
 }

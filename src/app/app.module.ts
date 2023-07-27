@@ -25,7 +25,7 @@ import { PromotionModule } from 'src/promotion/promotion.module';
 @Module({
     imports: [
         ServeStaticModule.forRoot({
-            serveRoot: `/api/compodoc`,
+            serveRoot: '/api/compodoc',
             rootPath: join(__dirname, '..', 'docs'),
         }),
         ConfigModule.forRoot({

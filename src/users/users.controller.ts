@@ -1,19 +1,19 @@
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  NotFoundException,
-  Param,
-  ParseIntPipe,
-  Post,
-  Put,
-  Query,
-  Req,
-  UnauthorizedException,
-  UploadedFile,
-  UseGuards,
-  UseInterceptors,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    NotFoundException,
+    Param,
+    ParseIntPipe,
+    Post,
+    Put,
+    Query,
+    Req,
+    UnauthorizedException,
+    UploadedFile,
+    UseGuards,
+    UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { FileUploadDto } from 'src/files/dto/file.dto';
@@ -44,59 +44,59 @@ import { SetAgreementDto } from './dto/set-agreement.dto';
 @ApiTags('Users')
 @ApiBearerAuth()
 export class UsersController extends BaseEntityController<User, UserFilter, UserDto> {
-  constructor(private usersService: UsersService, private packagesService: PackagesService) {
-    super(usersService, UserDto);
-  }
+    constructor(private usersService: UsersService, private packagesService: PackagesService) {
+        super(usersService, UserDto);
+    }
 
   @Get('/:id')
-  async findUser(@Param('id', ParseIntPipe) id: string): Promise<UserDto> {
-    const user = await this.usersService.getUser(id);
+    async findUser(@Param('id', ParseIntPipe) id: string): Promise<UserDto> {
+        const user = await this.usersService.getUser(id);
 
-    return UserDto.create(user);
-  }
+        return UserDto.create(user);
+    }
 
   @Get('/me/referrals')
   async countReferrals(@Req() req: any): Promise<number[]> {
-    const userId = req.user.id;
-    const user = await this.findOne(userId);
+      const userId = req.user.id;
+      const user = await this.findOne(userId);
 
-    return this.usersService.countReferrals(user.partnerId);
+      return this.usersService.countReferrals(user.partnerId);
   }
 
   @Get('/me/income')
   async getIncome(@AuthUser() user: User): Promise<any> {
-    return this.usersService.getIncome(user);
+      return this.usersService.getIncome(user);
   }
 
   @Post('/me/agreement')
   async setAgreement(@AuthUser() user: User, @Body() body: SetAgreementDto) {
-    return this.usersService.setAgreement(user.id, body);
+      return this.usersService.setAgreement(user.id, body);
   }
 
   @Post('/me/upload')
   @UseInterceptors(FileInterceptor('photo'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    description: 'Photo to upload',
-    type: PhotoUploadDto,
+      description: 'Photo to upload',
+      type: PhotoUploadDto,
   })
   async uploadPhoto(@Req() req: any, @UploadedFile() photo: FileUploadDto): Promise<any> {
-    return this.usersService.uploadPhoto(req.user.id, photo);
+      return this.usersService.uploadPhoto(req.user.id, photo);
   }
 
   @Post('/me/fake-deposit')
   async fakeDeposit(@Req() req: any): Promise<any> {
-    const userId = req.user.id;
-    const user = await this.usersService.findById(userId);
+      const userId = req.user.id;
+      const user = await this.usersService.findById(userId);
 
-    return this.packagesService.buyPackage(user, Levels.Level1);
+      return this.packagesService.buyPackage(user, Levels.Level1);
   }
 
   @Get('/me/team')
   async getTeamInfo(@Req() req: any): Promise<any> {
-    const userId = req.user.id;
+      const userId = req.user.id;
 
-    return this.usersService.getTeamInfo(userId);
+      return this.usersService.getTeamInfo(userId);
   }
 
   @Get('/me/team/income')
@@ -109,27 +109,27 @@ export class UsersController extends BaseEntityController<User, UserFilter, User
     @Query('from') from: Date,
     @Query('to') to: Date,
   ): Promise<any> {
-    const userId = req.user.id;
-    return this.usersService.getPartnersIncome(userId, level, from, to);
+      const userId = req.user.id;
+      return this.usersService.getPartnersIncome(userId, level, from, to);
   }
 
   @Get('/me/team/partners')
   async getPartners(@Req() req: any): Promise<any> {
-    const userId = req.user.id;
-    const user = await this.usersService.getUser(userId);
+      const userId = req.user.id;
+      const user = await this.usersService.getUser(userId);
 
-    const referrals = await this.usersService.getReferrals(user.partnerId);
+      const referrals = await this.usersService.getReferrals(user.partnerId);
 
-    return plainToInstance(PartnerDto, referrals, {
-      excludeExtraneousValues: true,
-    });
+      return plainToInstance(PartnerDto, referrals, {
+          excludeExtraneousValues: true,
+      });
   }
 
   @Post('/')
   async createUser(@Req() req, @Body() body: CreateUserDto): Promise<UserDto> {
-    if (!req.user.isAdmin) throw new UnauthorizedException();
-    const user = await this.usersService.createUser(body);
-    return UserDto.create(user);
+      if (!req.user.isAdmin) throw new UnauthorizedException();
+      const user = await this.usersService.createUser(body);
+      return UserDto.create(user);
   }
 
   @Put('/:id')
@@ -138,38 +138,38 @@ export class UsersController extends BaseEntityController<User, UserFilter, User
     @Body() body: UpdateUserDto,
     @Param('id', ParseIntPipe) id: string,
   ): Promise<UserDto> {
-    if (req.user.id !== +id) if (!req.user.isAdmin) throw new UnauthorizedException();
+      if (req.user.id !== +id) if (!req.user.isAdmin) throw new UnauthorizedException();
 
-    if (!req.user.isAdmin) body.isAdmin = req.user.isAdmin;
-    const user = await this.usersService.updateUser(id, body);
+      if (!req.user.isAdmin) body.isAdmin = req.user.isAdmin;
+      const user = await this.usersService.updateUser(id, body);
 
-    if (!user) {
-      throw new NotFoundException();
-    }
+      if (!user) {
+          throw new NotFoundException();
+      }
 
-    return UserDto.create(user);
+      return UserDto.create(user);
   }
 
   @Get('/me/profile')
   @UseGuards(RoleGuard)
   async getUserProfile(@AuthUser() user: User) {
-    return this.usersService.getUserProfileData(user);
+      return this.usersService.getUserProfileData(user);
   }
 
   @Post('/me/defaultWallet')
   async updateDefaultWalletNumber(@AuthUser() user: User, @Body() body: UpdateWalletDto) {
-    console.log('START UPDATE DEFAULT WALLET');
+      console.log('START UPDATE DEFAULT WALLET');
 
-    const updatedUser = await this.usersService.updateUser(user.id, body);
+      const updatedUser = await this.usersService.updateUser(user.id, body);
 
-    console.log('FINISH PROMISE DEFAUT WALLET');
+      console.log('FINISH PROMISE DEFAUT WALLET');
 
-    return ProfileUserDto.create(updatedUser);
+      return ProfileUserDto.create(updatedUser);
   }
 
   @Delete('/:id')
   async removeUser(@Param('id', ParseIntPipe) id: string): Promise<void> {
-    return this.remove(id);
+      return this.remove(id);
   }
 
   @Get('/team/structure/:partnerId')
@@ -177,17 +177,17 @@ export class UsersController extends BaseEntityController<User, UserFilter, User
     @Param('partnerId') requestedPartnerId: string,
     @AuthUser() user: User,
   ) {
-    const { fullName, partnerId, referrals, teamInfo } = await this.usersService.getUserStructure(
-      user,
-      requestedPartnerId,
-    );
-    return {
-      fullName,
-      partnerId,
-      referrals: plainToInstance(PartnerDto, referrals, {
-        excludeExtraneousValues: true,
-      }),
-      teamInfo,
-    };
+      const { fullName, partnerId, referrals, teamInfo } = await this.usersService.getUserStructure(
+          user,
+          requestedPartnerId,
+      );
+      return {
+          fullName,
+          partnerId,
+          referrals: plainToInstance(PartnerDto, referrals, {
+              excludeExtraneousValues: true,
+          }),
+          teamInfo,
+      };
   }
 }

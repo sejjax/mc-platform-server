@@ -2,32 +2,32 @@ import { User } from 'src/users/user.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({
-  name: 'change_default_wallet_addr',
+    name: 'change_default_wallet_addr',
 })
 export class ChangeDefaultWalletAddr {
   @PrimaryGeneratedColumn()
-  id: number;
+      id: number;
 
   @ManyToOne(() => User, (user) => user.default_wallet_addr_changes)
-  user: User;
+      user: User;
 
   @Column()
-  old_wallet: string;
+      old_wallet: string;
 
   @Column()
-  new_wallet: string;
+      new_wallet: string;
 
   @Column()
-  confirmation_token: string;
+      confirmation_token: string;
 
   @Column({
-    type: 'timestamp',
+      type: 'timestamp',
   })
-  confirmation_token_expiration: string;
+      confirmation_token_expiration: string;
 
   @Column({
-    type: 'timestamp',
-    nullable: true,
+      type: 'timestamp',
+      nullable: true,
   })
-  confirmation_date: Date;
+      confirmation_date: Date;
 }

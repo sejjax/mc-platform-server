@@ -9,12 +9,12 @@ import { ChangeDefaultWalletAddr } from './change-default-wallet-addr.entity';
 import { ChangeDefaultWalletAddressService } from './change-default-wallet-addr.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([ChangeDefaultWalletAddr, User, Calculation]),
-    MailModule,
-    NotificationsModule,
-  ],
-  controllers: [ChangeDefaultWalletAddressController],
-  providers: [ChangeDefaultWalletAddressService],
+    imports: [
+        TypeOrmModule.forFeature([ChangeDefaultWalletAddr, User, Calculation]),
+        MailModule,
+        NotificationsModule,
+    ],
+    controllers: [ChangeDefaultWalletAddressController],
+    providers: [ChangeDefaultWalletAddressService],
 })
 export class ChangeDefaultWalletAddressModule {}

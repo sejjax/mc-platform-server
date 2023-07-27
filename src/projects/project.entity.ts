@@ -4,29 +4,29 @@ import { ProjectTypes } from './projects';
 @Entity()
 export class Project {
   @PrimaryGeneratedColumn()
-  id: number;
+      id: number;
 
   @Column({ nullable: true })
-  name: string | null;
+      name: string | null;
 
   @Column({ type: 'varchar' })
-  description: string;
+      description: string;
 
   @Column({ type: 'float' })
-  apy: number;
+      apy: number;
 
   @Column({ type: 'boolean' })
-  available: boolean;
+      available: boolean;
 
   @Column({ type: 'integer', default: 0 })
-  risk: number;
+      risk: number;
 
   @Column({ type: 'enum', enum: ProjectTypes })
-  type: ProjectTypes;
+      type: ProjectTypes;
 
   @Column({ type: 'timestamp with time zone' })
-  startDate: Date;
+      startDate: Date;
 
   @Column({ type: 'timestamp with time zone' })
-  endDate: Date;
+      endDate: Date;
 }

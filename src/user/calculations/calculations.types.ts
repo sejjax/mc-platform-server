@@ -15,16 +15,16 @@ export enum Status {
 }
 
 export const CalculationPercentsFromLevel = {
-  0: 3,
-  1: 6,
-  2: 8,
-  3: 10,
-  4: 12,
-  5: 13,
-  6: 14,
-  7: 15,
-  8: 16,
-  9: 17,
+    0: 3,
+    1: 6,
+    2: 8,
+    3: 10,
+    4: 12,
+    5: 13,
+    6: 14,
+    7: 15,
+    8: 16,
+    9: 17,
 };
 
 export const generateCalculationsQueue = 'generateCalculationsQueue';

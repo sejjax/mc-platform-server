@@ -12,36 +12,36 @@ import { MailModule } from 'src/mail/mail.module';
 import { IncomingMessage } from 'http';
 
 @Module({
-  imports: [
-    MailModule,
-    UsersModule,
-    ForgotModule,
-    PassportModule,
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get('auth.secret'),
-        signOptions: {
-          expiresIn: configService.get('auth.expires'),
-        },
-      }),
-      inject: [ConfigService],
-    }),
-    GoogleRecaptchaModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        secretKey: configService.get('auth.recaptchaSecret'),
-        response: (req: IncomingMessage) =>
-          (req.headers.recaptcha || '').toString(),
-        actions: ['register'],
-        score: 0.8,
-        // skipIf: configService.get('app.nodeEnv') !== 'production',
-      }),
-      inject: [ConfigService],
-    }),
-  ],
-  controllers: [AuthController],
-  providers: [JwtStrategy, AuthService],
-  exports: [AuthService],
+    imports: [
+        MailModule,
+        UsersModule,
+        ForgotModule,
+        PassportModule,
+        JwtModule.registerAsync({
+            imports: [ConfigModule],
+            useFactory: (configService: ConfigService) => ({
+                secret: configService.get('auth.secret'),
+                signOptions: {
+                    expiresIn: configService.get('auth.expires'),
+                },
+            }),
+            inject: [ConfigService],
+        }),
+        GoogleRecaptchaModule.forRootAsync({
+            imports: [ConfigModule],
+            useFactory: (configService: ConfigService) => ({
+                secretKey: configService.get('auth.recaptchaSecret'),
+                response: (req: IncomingMessage) =>
+                    (req.headers.recaptcha || '').toString(),
+                actions: ['register'],
+                score: 0.8,
+                // skipIf: configService.get('app.nodeEnv') !== 'production',
+            }),
+            inject: [ConfigService],
+        }),
+    ],
+    controllers: [AuthController],
+    providers: [JwtStrategy, AuthService],
+    exports: [AuthService],
 })
 export class AuthModule {}

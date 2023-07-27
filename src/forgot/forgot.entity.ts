@@ -1,11 +1,11 @@
 import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  Index,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  DeleteDateColumn,
+    Column,
+    CreateDateColumn,
+    Entity,
+    Index,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    DeleteDateColumn,
 } from 'typeorm';
 
 import { User } from '../users/user.entity';
@@ -13,20 +13,20 @@ import { User } from '../users/user.entity';
 @Entity('forgot')
 export class Forgot {
   @PrimaryGeneratedColumn()
-  id: number;
+      id: number;
 
   @Index()
   @Column()
-  hash: string;
+      hash: string;
 
   @ManyToOne(() => User, {
-    eager: true,
+      eager: true,
   })
-  user: User;
+      user: User;
 
   @CreateDateColumn()
-  createdAt: Date;
+      createdAt: Date;
 
   @DeleteDateColumn()
-  deletedAt: Date;
+      deletedAt: Date;
 }

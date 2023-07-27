@@ -4,18 +4,18 @@ import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'ty
 @Entity()
 export class Promotion {
   @PrimaryGeneratedColumn()
-  id: number;
+      id: number;
 
   @Column({ type: 'int' })
-  teamDeposit: number;
+      teamDeposit: number;
 
   @Column({ type: 'int', nullable: true })
-  firstStructure: number | null;
+      firstStructure: number | null;
 
   @OneToOne(() => User)
   @JoinColumn()
-  user: User;
+      user: User;
 
   @Column({ type: 'boolean', default: true })
-  isComplete: boolean;
+      isComplete: boolean;
 }

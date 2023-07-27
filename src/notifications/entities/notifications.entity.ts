@@ -2,44 +2,44 @@ import { Column, PrimaryGeneratedColumn, CreateDateColumn, Entity, ManyToOne } f
 import { NotificationsType } from './notificationsType.entity';
 
 @Entity('notifications', {
-  orderBy: {
-    id: 'DESC',
-  },
+    orderBy: {
+        id: 'DESC',
+    },
 })
 export class Notifications {
   @PrimaryGeneratedColumn()
-  id: number;
+      id: number;
 
   @ManyToOne(() => NotificationsType, (type) => type.notifications)
-  notification_type: NotificationsType;
+      notification_type: NotificationsType;
 
   @Column('varchar', { length: 100 })
-  notification_title: string;
+      notification_title: string;
 
   @Column({
-    type: 'varchar',
-    length: 400,
-    default: 'notification text',
+      type: 'varchar',
+      length: 400,
+      default: 'notification text',
   })
-  notification_text: string;
+      notification_text: string;
 
   @Column({
-    nullable: true,
+      nullable: true,
   })
-  whom_notify: string;
+      whom_notify: string;
 
   @Column({
-    type: 'bool',
-    default: true,
+      type: 'bool',
+      default: true,
   })
-  isSite: boolean;
+      isSite: boolean;
 
   @Column({
-    type: 'bool',
-    default: false,
+      type: 'bool',
+      default: false,
   })
-  isEmail: boolean;
+      isEmail: boolean;
 
   @CreateDateColumn()
-  notification_date: string;
+      notification_date: string;
 }

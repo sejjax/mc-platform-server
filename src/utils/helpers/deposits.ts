@@ -1,5 +1,5 @@
 export const isBasicDeposit = (projectName: string): boolean =>
-  projectName.includes('basic') && !projectName.includes('investor');
+    projectName.includes('basic') && !projectName.includes('investor');
 
 export const isInvestorDeposit = (projectName: string) => projectName.includes('investor');
 

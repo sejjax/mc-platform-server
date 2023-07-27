@@ -30,22 +30,22 @@ export class PartnerDto {
 
   @Expose()
   @Transform(({ obj }) => {
-    if (+obj.agreement === 1) return obj.mobile;
-    return 'Номер скрыт';
+      if (+obj.agreement === 1) return obj.mobile;
+      return 'Номер скрыт';
   })
   mobile: string;
 
   @Expose()
   @Transform(({ obj }) => {
-    if (+obj.agreement === 1) return obj.deposit_amount;
-    return 'Данные скрыты';
+      if (+obj.agreement === 1) return obj.deposit_amount;
+      return 'Данные скрыты';
   })
   deposit_amount: number;
 
   @Expose()
   @Transform(({ obj }) => {
-    if (+obj.agreement === 1) return obj.teamDeposit;
-    return 'Данные скрыты';
+      if (+obj.agreement === 1) return obj.teamDeposit;
+      return 'Данные скрыты';
   })
   teamDeposit: number;
 

@@ -1,23 +1,23 @@
 export class Product {
-    id: number
-    name: string
-    description?: string
-    title: string
-    startDate: Date
-    dueDate: Date
-    apy: string
-    apyChanging?: boolean
-    symbol?: string
-    slug: string
-    details?: string
-    payment_period: string
-    invest_period: string
-    min_amount: string
-    service_name: string
-    invest_period_in_weeks: string
-    payment_period_in_weeks: string
-    investor_level?: string
-    locale: string
+    id: number;
+    name: string;
+    description?: string;
+    title: string;
+    startDate: Date;
+    dueDate: Date;
+    apy: string;
+    apyChanging?: boolean;
+    symbol?: string;
+    slug: string;
+    details?: string;
+    payment_period: string;
+    invest_period: string;
+    min_amount: string;
+    service_name: string;
+    invest_period_in_weeks: string;
+    payment_period_in_weeks: string;
+    investor_level?: string;
+    locale: string;
 
     constructor(
         id: number,

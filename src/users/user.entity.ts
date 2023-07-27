@@ -1,17 +1,17 @@
 import {
-  Column,
-  AfterLoad,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  Index,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-  BeforeInsert,
-  BeforeUpdate,
-  OneToMany,
-  ManyToOne,
-  OneToOne,
+    Column,
+    AfterLoad,
+    CreateDateColumn,
+    DeleteDateColumn,
+    Entity,
+    Index,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+    BeforeInsert,
+    BeforeUpdate,
+    OneToMany,
+    ManyToOne,
+    OneToOne,
 } from 'typeorm';
 
 import * as bcrypt from 'bcryptjs';
@@ -33,153 +33,153 @@ import { PromotionLevel } from 'src/promotion/promotionLevels.entity';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  id: number;
+      id: number;
 
   @Column({ unique: true, nullable: true })
-  email: string | null;
+      email: string | null;
 
   @Column({ unique: true, nullable: true })
-  username: string | null;
+      username: string | null;
 
   @Column({ nullable: true })
-  fullName: string | null;
+      fullName: string | null;
 
   @ManyToOne(() => File, {
-    eager: true,
+      eager: true,
   })
-  photo: File | null;
+      photo: File | null;
 
   @Column({ nullable: true })
-  password: string;
+      password: string;
 
   public previousPassword: string;
 
   @AfterLoad()
   public loadPassword(): void {
-    this.previousPassword = this.password;
+      this.previousPassword = this.password;
   }
 
   @BeforeInsert()
   @BeforeUpdate()
   async setPassword() {
-    if (this.previousPassword !== this.password && this.password) {
-      const salt = await bcrypt.genSalt();
-      this.password = await bcrypt.hash(this.password, salt);
-    }
+      if (this.previousPassword !== this.password && this.password) {
+          const salt = await bcrypt.genSalt();
+          this.password = await bcrypt.hash(this.password, salt);
+      }
   }
 
   @Column({ nullable: true })
-  partnerId: string;
+      partnerId: string;
 
   @BeforeInsert()
   async setPartnerId() {
-    this.partnerId = await randomUuid(6);
+      this.partnerId = await randomUuid(6);
   }
 
   @Column({ nullable: true })
-  referrerId: string;
+      referrerId: string;
 
   @Column({ nullable: true })
-  default_wallet_address: string;
+      default_wallet_address: string;
 
   @Column({
-    type: 'enum',
-    enum: Statuses,
-    default: Statuses.active,
+      type: 'enum',
+      enum: Statuses,
+      default: Statuses.active,
   })
-  status: Statuses;
+      status: Statuses;
 
   @Column({ type: 'boolean', default: true })
-  passivePayments: boolean;
+      passivePayments: boolean;
 
   @Column({
-    type: 'enum',
-    enum: UserLevels,
-    default: UserLevels.Level0,
+      type: 'enum',
+      enum: UserLevels,
+      default: UserLevels.Level0,
   })
-  level: UserLevels;
+      level: UserLevels;
 
   @Column({
-    type: 'enum',
-    enum: InvestorLevel,
-    default: InvestorLevel.Level0,
+      type: 'enum',
+      enum: InvestorLevel,
+      default: InvestorLevel.Level0,
   })
-  investor_level: InvestorLevel;
+      investor_level: InvestorLevel;
 
   @Column({ nullable: true })
-  country: string;
+      country: string;
 
   @Column({ nullable: true })
-  city: string;
+      city: string;
 
   @Column({ nullable: true })
-  mobile: string;
+      mobile: string;
 
   @Index()
   @Column({ nullable: true })
-  hash: string | null;
+      hash: string | null;
 
   @CreateDateColumn()
-  createdAt: Date;
+      createdAt: Date;
 
   @Column({
-    type: 'enum',
-    enum: UserAgreement,
-    default: UserAgreement[2],
+      type: 'enum',
+      enum: UserAgreement,
+      default: UserAgreement[2],
   })
-  agreement: UserAgreementType;
+      agreement: UserAgreementType;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+      updatedAt: Date;
 
   @DeleteDateColumn()
-  deletedAt: Date;
+      deletedAt: Date;
 
   @OneToMany(() => ChangeDefaultWalletAddr, (dwac) => dwac.user)
-  default_wallet_addr_changes: ChangeDefaultWalletAddr[];
+      default_wallet_addr_changes: ChangeDefaultWalletAddr[];
 
   @OneToMany(() => Deposit, (deposit) => deposit.user)
-  deposits: Deposit[];
+      deposits: Deposit[];
 
   @OneToMany(() => Transaction, (transaction) => transaction.user)
-  transactions: Transaction[];
+      transactions: Transaction[];
 
   @OneToMany(() => Accrual, (accrual) => accrual.targetUser)
-  accruals: Accrual[];
+      accruals: Accrual[];
 
   @OneToMany(() => Accrual, (accrual) => accrual.sourceUser)
-  generatedAccruals: Accrual[];
+      generatedAccruals: Accrual[];
 
   @OneToMany(() => Package, (pkg) => pkg.user)
-  packages: Package[];
+      packages: Package[];
 
   @OneToMany(() => Calculation, (calculation) => calculation.user)
-  calculations: Calculation[];
+      calculations: Calculation[];
 
   @OneToOne(() => Team, (team) => team.user)
-  team: Team;
+      team: Team;
 
   @OneToOne(() => Promotion, (promotion) => promotion.user)
-  promotion: Promotion;
+      promotion: Promotion;
 
   @OneToOne(() => PromotionLevel, (promotionLevel) => promotionLevel.user)
-  promotionLevel: PromotionLevel;
+      promotionLevel: PromotionLevel;
 
   @ManyToOne(() => Role, { nullable: true })
-  role: Role;
+      role: Role;
 
   @Column({ type: 'boolean', default: false })
-  isAdmin: boolean;
+      isAdmin: boolean;
 
   @Column({ type: 'bool', default: false })
-  isTrial: boolean;
+      isTrial: boolean;
 }
 
 @Entity()
 export class DeletedUser extends User {
   @Column({
-    type: 'int',
-    unique: true,
+      type: 'int',
+      unique: true,
   })
-  userId: number;
+      userId: number;
 }

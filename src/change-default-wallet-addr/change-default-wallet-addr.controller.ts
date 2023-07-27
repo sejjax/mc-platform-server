@@ -8,18 +8,18 @@ import { ConfirmChangeDefaultWalletAddrDto } from './dto/confirm-change-default-
 
 @Controller('change-default-wallet-addr')
 export class ChangeDefaultWalletAddressController {
-  constructor(private changeDefaultWalletAddrService: ChangeDefaultWalletAddressService) {}
+    constructor(private changeDefaultWalletAddrService: ChangeDefaultWalletAddressService) {}
   @Post()
   @UseGuards(AuthGuard('jwt'))
-  async changeDefaultWalletAddr(
+    async changeDefaultWalletAddr(
     @Body() inputData: ChangeDefaultWalletAddrInputDto,
     @AuthUser() user: User,
-  ) {
-    return this.changeDefaultWalletAddrService.changeDefaultWalletAddr(inputData, user);
-  }
+    ) {
+        return this.changeDefaultWalletAddrService.changeDefaultWalletAddr(inputData, user);
+    }
 
   @Post('/confirm')
   async confirmWalletAddr(@Body() inputData: ConfirmChangeDefaultWalletAddrDto) {
-    return this.changeDefaultWalletAddrService.confirmChangeWallet(inputData.hash);
+      return this.changeDefaultWalletAddrService.confirmChangeWallet(inputData.hash);
   }
 }

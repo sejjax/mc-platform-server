@@ -11,15 +11,15 @@ export interface ForgotFilter {
 
 @Injectable()
 export class ForgotService extends BaseEntityService<Forgot, ForgotFilter> {
-  constructor() {
-    super(Forgot);
-  }
+    constructor() {
+        super(Forgot);
+    }
 
-  async createForgot(body: DeepPartial<Forgot>): Promise<void> {
-    const entityManager = this.connection.createEntityManager();
+    async createForgot(body: DeepPartial<Forgot>): Promise<void> {
+        const entityManager = this.connection.createEntityManager();
 
-    const forgot = entityManager.create(Forgot, body);
+        const forgot = entityManager.create(Forgot, body);
 
-    await entityManager.save(forgot);
-  }
+        await entityManager.save(forgot);
+    }
 }

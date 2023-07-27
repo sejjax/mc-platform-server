@@ -1,3 +1,3 @@
-import { lengthOf } from "./lengthOf";
+import { lengthOf } from './lengthOf';
 
-export const isArrayUniq = (array: any[]): boolean => lengthOf(array) === lengthOf(new Set(array))
+export const isArrayUniq = (array: any[]): boolean => lengthOf(array) === lengthOf(new Set(array));

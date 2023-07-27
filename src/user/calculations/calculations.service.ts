@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserWithRefs } from 'src/metrics/metrics.types';
 import { User } from 'src/users/user.entity';
@@ -7,38 +7,32 @@ import { Deposit } from '../deposit/entities/deposit.entity';
 import { AccrualType, CalculationPercentsFromLevel, CalculationWithByOrder, Status, } from './calculations.types';
 import { CreateCalculationsDto } from './dto/create-calculations.dto';
 import { Calculation } from './entities/calculation.entity';
-import { ResponseIncomeForPeriodDto } from "./dto/response-income-for-period.dto";
-import { epochStart, infinity } from "../../utils/helpers/date";
-import { RequestServiceCalculationsDto } from "./dto/service-request-calculations.dto";
-import { dataArrayResponse } from "../../utils/helpers/dataArrayResponse";
-import { ResponseDataArray } from "../../classes/response-data-array";
-import { sqlCleanObjectQueryMap } from "../../utils/helpers/sqlObjectQueryMap";
-import { sqlMap } from "../../utils/helpers/sqlMap";
-import { all, comma, o, orderBy } from "../../utils/helpers/sql";
-import { transferObjectFields } from "../../helpers/transferObjectFields";
-import { omit } from "../../utils/helpers/object";
-import { Transaction } from "../../transactions/transaction.entity";
-import { formatString } from "../../helpers/formatString";
-import { mergeCalculationsWithProjects } from "../deposit/helpers/mergeCalculationsWithProjects";
-import { Product } from "../product/product.entity";
-import { ProductService } from "../product/product.service";
-import { HttpModule } from "@nestjs/axios";
-import { isEmpty } from "../../helpers/isEmpty";
-import { absentLocalesCheck } from "../deposit/helpers/absentLocalesCheck";
-import { absentLocalesError } from "../deposit/helpers/absentLocalesError";
+import { ResponseIncomeForPeriodDto } from './dto/response-income-for-period.dto';
+import { epochStart, infinity } from '../../utils/helpers/date';
+import { RequestServiceCalculationsDto } from './dto/service-request-calculations.dto';
+import { dataArrayResponse } from '../../utils/helpers/dataArrayResponse';
+import { ResponseDataArray } from '../../classes/response-data-array';
+import { sqlCleanObjectQueryMap } from '../../utils/helpers/sqlObjectQueryMap';
+import { sqlMap } from '../../utils/helpers/sqlMap';
+import { all, comma, o, orderBy } from '../../utils/helpers/sql';
+import { transferObjectFields } from '../../helpers/transferObjectFields';
+import { omit } from '../../utils/helpers/object';
+import { Transaction } from '../../transactions/transaction.entity';
+import { formatString } from '../../helpers/formatString';
+import { mergeCalculationsWithProjects } from '../deposit/helpers/mergeCalculationsWithProjects';
+import { ProductService } from '../product/product.service';
+import { absentLocalesCheck } from '../deposit/helpers/absentLocalesCheck';
+import { absentLocalesError } from '../deposit/helpers/absentLocalesError';
 
 
 @Injectable()
 export class CalculationsService {
-    private readonly productService: ProductService
+    private readonly productService: ProductService;
     constructor(
         @InjectRepository(Calculation)
         private calculationsRepo: Repository<Calculation>,
-        // import http service
-        // сделать функции хелпером
-        // сделать хоть как-то
     ) {
-        this.productService = new ProductService()
+        this.productService = new ProductService();
     }
 
     async incomeForPeriod(user: User): Promise<ResponseIncomeForPeriodDto> {
@@ -119,8 +113,8 @@ export class CalculationsService {
             Calculation | CalculationWithByOrder
         > {
         const {productId, status, ...remainedFilers} = query.filters;
-        const dateFrom = typeof query.filters.dateFrom === 'string' ? query.filters.dateFrom : epochStart().toISOString()
-        const dateTo = typeof query.filters.dateTo === 'string' ? query.filters.dateTo : infinity().toISOString()
+        const dateFrom = typeof query.filters.dateFrom === 'string' ? query.filters.dateFrom : epochStart().toISOString();
+        const dateTo = typeof query.filters.dateTo === 'string' ? query.filters.dateTo : infinity().toISOString();
 
         delete remainedFilers.dateFrom;
         delete remainedFilers.dateTo;
@@ -130,7 +124,7 @@ export class CalculationsService {
 
 
         const buildSqlQuery = (cond: boolean) => `
-                select ${cond ? `count(*)` : `
+                select ${cond ? 'count(*)' : `
                     c.accrual_type,
                     c.id,
                     c.amount,
@@ -152,31 +146,31 @@ export class CalculationsService {
                 left outer join "user" up on c."userPartnerId" = up.id
                 where
                     ${all(
-                'true',
-                'u.id=$userId',
-                o(dateFrom, () => `c.payment_date > '${dateFrom}'`),
-                o(dateTo, () => `c.payment_date < '${dateTo}'`),
-                o(productId, () => `"productId"=${productId}`),
-                o(status, () => sqlMap(`c.status`, Array.isArray(status) ? status.map(it => it.toString()) : []), Array.isArray(status)),
-                ...Object.entries(sqlCleanObjectQueryMap('c', remainedFilers)).map(([key, value]) => `${key}='${value}'`)
-        )}
+        'true',
+        'u.id=$userId',
+        o(dateFrom, () => `c.payment_date > '${dateFrom}'`),
+        o(dateTo, () => `c.payment_date < '${dateTo}'`),
+        o(productId, () => `"productId"=${productId}`),
+        o(status, () => sqlMap('c.status', Array.isArray(status) ? status.map(it => it.toString()) : []), Array.isArray(status)),
+        ...Object.entries(sqlCleanObjectQueryMap('c', remainedFilers)).map(([key, value]) => `${key}='${value}'`)
+    )}
                 ${!cond ? `order by ${comma(
-                orderBy('c', remainedOrderBy),
-                o(percent, () => `c.percent::float ${percent}`),
-                o(referralFullName, () => `up."fullName" ${referralFullName}`),
-                o(referralPartnerId, () => `up."partnerId" ${referralPartnerId}`),
-                o(product, () => `d.id ${product}`),
-                'c.id',
-        )}
+        orderBy('c', remainedOrderBy),
+        o(percent, () => `c.percent::float ${percent}`),
+        o(referralFullName, () => `up."fullName" ${referralFullName}`),
+        o(referralPartnerId, () => `up."partnerId" ${referralPartnerId}`),
+        o(product, () => `d.id ${product}`),
+        'c.id',
+    )}
                 offset $skip
                 limit $take` : ''}
-        `
-        const sqlQueryTotal = formatString(buildSqlQuery(true), {userId: user.id})
+        `;
+        const sqlQueryTotal = formatString(buildSqlQuery(true), {userId: user.id});
         const sqlQuery = formatString(buildSqlQuery(false), {
             userId: user.id,
             skip: query.pagination.skip,
             take: query.pagination.take,
-        })
+        });
 
         const totalRes = await this.calculationsRepo.query(sqlQueryTotal) as ({ count: string })[];
         const total = Number(totalRes[0].count);
@@ -184,22 +178,22 @@ export class CalculationsService {
         let calculations = await this.calculationsRepo.query(sqlQuery) as any[];
         calculations = calculations.map(it => {
             const calc = new Calculation();
-            transferObjectFields(omit(it, ['fullName', 'partnerId', "productId", "transactionId"]), calc)
-            calc.product = new Deposit()
-            calc.product.id = it.productId
-            calc.product.product = it.product
-            calc.product.product_service_description = it.product_service_description
-            calc.product.transaction = new Transaction()
-            calc.product.transaction.id = it.transactionId
-            calc.product.generateGUID()
-            delete calc.product.transaction
+            transferObjectFields(omit(it, ['fullName', 'partnerId', 'productId', 'transactionId']), calc);
+            calc.product = new Deposit();
+            calc.product.id = it.productId;
+            calc.product.product = it.product;
+            calc.product.product_service_description = it.product_service_description;
+            calc.product.transaction = new Transaction();
+            calc.product.transaction.id = it.transactionId;
+            calc.product.generateGUID();
+            delete calc.product.transaction;
 
-            calc.userPartner = new User()
+            calc.userPartner = new User();
 
-            calc.userPartner.fullName = it.fullName
-            calc.userPartner.partnerId = it.partnerId
-            return calc
-        }) as Calculation[]
+            calc.userPartner.fullName = it.fullName;
+            calc.userPartner.partnerId = it.partnerId;
+            return calc;
+        }) as Calculation[];
         let result;
         if (accrualType === AccrualType.product) {
             const ids: number[] = [];
@@ -211,16 +205,16 @@ export class CalculationsService {
                 ...calculation,
                 buyOrder: ids.indexOf(calculation.product.id) + 1,
             }));
-        } else  result = calculations
+        } else  result = calculations;
 
 
         // const projects = await this.projectsService.getAllProjects()
-        let projects = await this.productService.fetchProjects(query.locale)
+        const projects = await this.productService.fetchProjects(query.locale);
 
-        const absentLocales = absentLocalesCheck(calculations.map(calc => calc.product), projects, query.locale)
+        const absentLocales = absentLocalesCheck(calculations.map(calc => calc.product), projects, query.locale);
         if(absentLocales)
-            console.log(absentLocalesError(absentLocales))
-        const finalResult = mergeCalculationsWithProjects(result, projects)
+            console.log(absentLocalesError(absentLocales));
+        const finalResult = mergeCalculationsWithProjects(result, projects);
 
         return dataArrayResponse({
             ...query.pagination,

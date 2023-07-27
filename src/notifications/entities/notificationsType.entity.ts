@@ -4,11 +4,11 @@ import { Notifications } from './notifications.entity';
 @Entity()
 export class NotificationsType {
   @PrimaryGeneratedColumn()
-  id: number;
+      id: number;
 
   @Column()
-  title: string;
+      title: string;
 
   @OneToMany(() => Notifications, (notification) => notification.notification_type)
-  notifications: Notifications[];
+      notifications: Notifications[];
 }

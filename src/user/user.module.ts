@@ -22,33 +22,33 @@ import { CalculationsService } from './calculations/calculations.service';
 import { CalculationsController } from './calculations/calculations.controller';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      Balance,
-      WalletHistory,
-      Deposit,
-      WithdrawHistory,
-      BuyProjectTokens,
-      Calculation,
-    ]),
-  ],
-  controllers: [
-    BalanceController,
-    WalletHistoryController,
-    DepositController,
-    WithdrawHistoryController,
-    BuyProjectTokensController,
-    CalculationsController,
-  ],
-  providers: [
-    UsersService,
-    BalanceService,
-    FilesService,
-    WalletHistoryService,
-    DepositService,
-    WithdrawHistoryService,
-    BuyProjectTokensService,
-    CalculationsService,
-  ],
+    imports: [
+        TypeOrmModule.forFeature([
+            Balance,
+            WalletHistory,
+            Deposit,
+            WithdrawHistory,
+            BuyProjectTokens,
+            Calculation,
+        ]),
+    ],
+    controllers: [
+        BalanceController,
+        WalletHistoryController,
+        DepositController,
+        WithdrawHistoryController,
+        BuyProjectTokensController,
+        CalculationsController,
+    ],
+    providers: [
+        UsersService,
+        BalanceService,
+        FilesService,
+        WalletHistoryService,
+        DepositService,
+        WithdrawHistoryService,
+        BuyProjectTokensService,
+        CalculationsService,
+    ],
 })
 export class UserModule {}

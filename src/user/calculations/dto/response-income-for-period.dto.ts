@@ -1,5 +1,5 @@
 export class ResponseIncomeForPeriodDto {
-    currentWeekIncome: number
-    currentMonthIncome: number
-    nextMonthIncome: number
+    currentWeekIncome: number;
+    currentMonthIncome: number;
+    nextMonthIncome: number;
 }

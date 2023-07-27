@@ -12,30 +12,30 @@ export enum TransactionStatusEnum {
 @Entity()
 export class Transaction {
   @PrimaryGeneratedColumn()
-  id: number;
+      id: number;
 
   @Column({ nullable: true })
-  transaction_hash: string;
+      transaction_hash: string;
 
   @Column()
-  product_service_description: string;
+      product_service_description: string;
 
   @Column()
-  wallet_addr: string;
+      wallet_addr: string;
 
   @Column({ type: 'varchar', nullable: true })
-  amount: string;
+      amount: string;
 
   @ManyToOne(() => User, (user) => user.transactions)
-  user: User;
+      user: User;
 
   @Column({
-    type: 'enum',
-    enum: TransactionStatusEnum,
-    default: TransactionStatusEnum.waiting_approval,
+      type: 'enum',
+      enum: TransactionStatusEnum,
+      default: TransactionStatusEnum.waiting_approval,
   })
-  status: TransactionStatusEnum;
+      status: TransactionStatusEnum;
 
   @CreateDateColumn()
-  createdAt: Date;
+      createdAt: Date;
 }

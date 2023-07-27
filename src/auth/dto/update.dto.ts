@@ -1,13 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsMobilePhone,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-  Validate,
+    IsMobilePhone,
+    IsNotEmpty,
+    IsNumber,
+    IsOptional,
+    IsString,
+    Max,
+    Min,
+    Validate,
 } from 'class-validator';
 import { IsPassword } from 'src/auth/validators/password.validator';
 import { IsExist } from 'src/utils/validators/is-exists.validator';
@@ -23,7 +23,7 @@ export class UpdateDto {
 
   @IsOptional()
   @Validate(IsExist, ['File', 'id'], {
-    message: 'imageNotExists',
+      message: 'imageNotExists',
   })
   @ApiPropertyOptional()
   photo?: File;
@@ -36,7 +36,7 @@ export class UpdateDto {
 
   @IsOptional()
   @IsMobilePhone(null, {
-    message: 'incorrectPhoneNumber',
+      message: 'incorrectPhoneNumber',
   })
   @IsNotEmpty()
   @ApiPropertyOptional()
@@ -59,8 +59,8 @@ export class UpdateDto {
   isAdmin: boolean;
 
   @ApiProperty({
-    type: 'number',
-    description: 'Contains values of UserAgreementType : 0 | 1 | 2',
+      type: 'number',
+      description: 'Contains values of UserAgreementType : 0 | 1 | 2',
   })
   @IsNumber()
   @Min(UserAgreement[0])

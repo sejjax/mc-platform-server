@@ -1,4 +1,4 @@
-import { Locale } from "../../../classes/locale";
+import { Locale } from '../../../classes/locale';
 
 export type AbsentLocale = {
     locale: Locale,

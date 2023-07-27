@@ -1,11 +1,11 @@
 export const Packages = [0, 200, 500, 1000, 5000];
 
 export const Accruals = [
-  [], // Level0 - no accruals
-  [5], // Level1 - first line only
-  [5, 3, 1, 1],
-  [7, 5, 3, 1],
-  [7, 6, 5, 4, 3],
+    [], // Level0 - no accruals
+    [5], // Level1 - first line only
+    [5, 3, 1, 1],
+    [7, 5, 3, 1],
+    [7, 6, 5, 4, 3],
 ];
 
 export enum InvestorLevel {

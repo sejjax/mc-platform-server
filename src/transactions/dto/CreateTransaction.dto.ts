@@ -3,8 +3,8 @@ import { IsString } from 'class-validator';
 
 export class CreateTransactionDto {
   @ApiProperty({
-    description: 'Slug of project category for this transaction',
-    example: 'basic5',
+      description: 'Slug of project category for this transaction',
+      example: 'basic5',
   })
   @IsString()
   product_service_description: string;

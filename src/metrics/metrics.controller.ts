@@ -11,23 +11,23 @@ import { MetricsService } from './metrics.service';
 @Controller('metrics')
 @ApiTags('Metrics')
 export class MetricsController {
-  constructor(private metricsService: MetricsService, private configService: ConfigService) {}
+    constructor(private metricsService: MetricsService, private configService: ConfigService) {}
 
   @ApiBearerAuth()
   @Get()
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles(Role.metrics)
-  async getMetricsData() {
-    return this.metricsService.getMetricsData();
-  }
+    async getMetricsData() {
+        return this.metricsService.getMetricsData();
+    }
 
   @Get('/next_payments')
   async getNextPaymentsAmount(
     @Query('key') key?: string,
     @Query('days', ParseIntPipe) days?: number,
   ) {
-    if (!key || !days || key !== this.configService.get('auth.secret'))
-      throw new ForbiddenException();
-    return this.metricsService.getNextPaymentsByDays(days);
+      if (!key || !days || key !== this.configService.get('auth.secret'))
+          throw new ForbiddenException();
+      return this.metricsService.getNextPaymentsByDays(days);
   }
 }

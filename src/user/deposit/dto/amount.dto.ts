@@ -1,3 +1,3 @@
 export class AmountDto {
-    amount: number
+    amount: number;
 }

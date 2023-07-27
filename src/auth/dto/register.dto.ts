@@ -1,12 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsEmail,
-  IsMobilePhone,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Validate,
-  ValidateIf,
+    IsEmail,
+    IsMobilePhone,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+    Validate,
+    ValidateIf,
 } from 'class-validator';
 
 import { IsNotExist } from 'src/utils/validators/is-not-exists.validator';
@@ -20,7 +20,7 @@ export class RegisterDto {
   fullName: string;
 
   @Validate(IsNotExist, ['User'], {
-    message: 'incorrectEmail',
+      message: 'incorrectEmail',
   })
   @IsEmail()
   @IsNotEmpty()
@@ -34,7 +34,7 @@ export class RegisterDto {
 
   @ValidateIf(({ mobile }) => !!mobile)
   @IsMobilePhone(null, {
-    message: 'incorrectPhoneNumber',
+      message: 'incorrectPhoneNumber',
   })
   @ApiProperty()
   mobile: string;
@@ -46,7 +46,7 @@ export class RegisterDto {
   @IsOptional()
   @ValidateIf(({ referrerId }) => referrerId !== '')
   @Validate(IsPartnerIdExists, {
-    message: 'incorrectPartnerId',
+      message: 'incorrectPartnerId',
   })
   @ApiPropertyOptional()
   referrerId?: string;

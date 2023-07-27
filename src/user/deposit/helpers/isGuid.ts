@@ -1,5 +1,5 @@
-import { Guid } from "../deposit.types";
+import { Guid } from '../deposit.types';
 
 export const isGuid = (id: string): id is Guid => {
-  return id.includes('-')
-}
+    return id.includes('-');
+};

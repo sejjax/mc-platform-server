@@ -9,21 +9,21 @@ type JwtPayload = User & { iat: number; exp: number };
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(
+    constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
-  ) {
-    super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: configService.get('auth.secret'),
-    });
-  }
-
-  public validate(payload: JwtPayload) {
-    if (!payload.id) {
-      throw new UnauthorizedException();
+    ) {
+        super({
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            secretOrKey: configService.get('auth.secret'),
+        });
     }
 
-    return payload;
-  }
+    public validate(payload: JwtPayload) {
+        if (!payload.id) {
+            throw new UnauthorizedException();
+        }
+
+        return payload;
+    }
 }

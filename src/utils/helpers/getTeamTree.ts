@@ -1,5 +1,4 @@
 import { User } from 'src/users/user.entity';
-import { getPromotionDates } from './promotion';
 
 export interface TeamTreeQueryItem
   extends Pick<
@@ -15,7 +14,7 @@ export interface TeamTreeQueryItem
 }
 
 export const getTeamTreeQuery = (partnerId: string) =>
-  `with recursive users_tree as(
+    `with recursive users_tree as(
     select 
       u.id,
       u."fullName",
@@ -69,7 +68,7 @@ export const getTeamTreeQuery = (partnerId: string) =>
 `;
 
 export const getTeamTreeQueryWithDepositAmount = (partnerId: string) =>
-  `with recursive users_tree as(
+    `with recursive users_tree as(
         select 
           u.id,
           u."fullName",
@@ -121,7 +120,7 @@ export const getTeamTreeQueryWithDepositAmount = (partnerId: string) =>
  * Usage: dataSource/manager.query(query, [partnerId, firstDate, lastDate])
  */
 export const getPromotionTeamStructureQuery = (): string =>
-  `
+    `
   WITH RECURSIVE cte AS (
   select u.id,u."fullName", u."partnerId", u."referrerId" , 0 as "refLevel" 
   from public."user" u
@@ -139,13 +138,13 @@ export const getPromotionTeamStructureQuery = (): string =>
  * also select only between promotion dates(currenly 1 May 2023 - 31 August 2023)
  */
 export const getPromotionFirstStructureAmount = () =>
-  `
+    `
   ${getNotConsideredDepositsCte()}
   select cast(coalesce(sum(d.currency_amount), 0) as int) as sum from public.user u left join public.deposit d on u.id = d."userId" AND d."createdAt" between $2 and $3 AND d.id NOT IN (SELECT id FROM not_considered_deposits) where u."referrerId" = $1`;
 
 export const getNotConsideredDepositsCte = (
-  withWith = true,
-  [firstDateParam, lastDateParam] = ['$2', '$3'],
+    withWith = true,
+    [firstDateParam, lastDateParam] = ['$2', '$3'],
 ) => `
 ${withWith ? 'with' : ''} not_considered_deposits as (
   select d.id from public.deposit d join public.calculation c on c."productId" = d.id and c.accrual_type = 'upgrade' 

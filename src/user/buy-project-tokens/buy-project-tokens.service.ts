@@ -7,23 +7,23 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class BuyProjectTokensService {
-  constructor(
+    constructor(
     @InjectRepository(BuyProjectTokens)
     private buyProjectTokensRepo: Repository<BuyProjectTokens>,
-  ) {}
+    ) {}
 
-  async createOrUpdate(
-    createWithdrawHistoryDto: CreateBuyProjectTokensDto,
-  ): Promise<BuyProjectTokens> {
-    return await this.buyProjectTokensRepo.save(createWithdrawHistoryDto);
-  }
+    async createOrUpdate(
+        createWithdrawHistoryDto: CreateBuyProjectTokensDto,
+    ): Promise<BuyProjectTokens> {
+        return await this.buyProjectTokensRepo.save(createWithdrawHistoryDto);
+    }
 
-  async findByUser(user: User): Promise<BuyProjectTokens[]> {
-    return (
-      (await this.buyProjectTokensRepo.find({
-        where: { user },
-        order: { Unlock_date: 'DESC' },
-      })) || ([] as BuyProjectTokens[])
-    );
-  }
+    async findByUser(user: User): Promise<BuyProjectTokens[]> {
+        return (
+            (await this.buyProjectTokensRepo.find({
+                where: { user },
+                order: { Unlock_date: 'DESC' },
+            })) || ([] as BuyProjectTokens[])
+        );
+    }
 }

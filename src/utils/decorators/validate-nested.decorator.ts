@@ -1,13 +1,13 @@
-import { registerDecorator, validateSync, ValidationOptions } from "class-validator";
-import { ValidationArguments } from "class-validator/types/validation/ValidationArguments";
-import { plainToClass } from "class-transformer";
+import { registerDecorator, validateSync, ValidationOptions } from 'class-validator';
+import { ValidationArguments } from 'class-validator/types/validation/ValidationArguments';
+import { plainToClass } from 'class-transformer';
 
 export function ValidateNested(
     schema: new () => any,
     validationOptions?: ValidationOptions
 ) {
 
-    return function (object: Object, propertyName: string | symbol) {
+    return function (object: object, propertyName: string | symbol) {
         registerDecorator({
             name: 'ValidateNested',
             target: object.constructor,

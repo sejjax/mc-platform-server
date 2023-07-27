@@ -16,23 +16,23 @@ export function BaseEntityDto<
   EntityDocument extends EmptyObject,
   EntityDtoResult,
 >() {
-  abstract class EntityDto {
-    public static create(item: EntityDocument): EntityDto;
-    public static create(items: EntityDocument[]): EntityDto[];
-    public static create(
-      items: EntityDocument | EntityDocument[],
-    ): EntityDto | EntityDto[] {
-      return plainToClass(
+    abstract class EntityDto {
+        public static create(item: EntityDocument): EntityDto;
+        public static create(items: EntityDocument[]): EntityDto[];
+        public static create(
+            items: EntityDocument | EntityDocument[],
+        ): EntityDto | EntityDto[] {
+            return plainToClass(
         this as unknown as ClassConstructor<EntityDto>,
         items,
         {
-          excludeExtraneousValues: true,
-          enableImplicitConversion: true,
+            excludeExtraneousValues: true,
+            enableImplicitConversion: true,
         },
-      );
+            );
+        }
     }
-  }
 
-  return EntityDto as unknown as ClassConstructor<EmptyObject> &
+    return EntityDto as unknown as ClassConstructor<EmptyObject> &
     BaseEntityDtoInterface<EntityDocument, EntityDtoResult>;
 }

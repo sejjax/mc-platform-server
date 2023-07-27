@@ -3,20 +3,20 @@ import { User } from 'src/users/user.entity';
 import { Column, Entity,  JoinColumn,  OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({
-  name: 'promotion_level',
+    name: 'promotion_level',
 })
 export class PromotionLevel {
   @PrimaryGeneratedColumn()
-  id: number;
+      id: number;
 
   @Column({
-    type: 'enum',
-    enum: UserLevels,
-    default: UserLevels.Level0,
+      type: 'enum',
+      enum: UserLevels,
+      default: UserLevels.Level0,
   })
-  level: UserLevels;
+      level: UserLevels;
 
   @OneToOne(() => User, (user) => user.promotionLevel)
   @JoinColumn()
-  user: User;
+      user: User;
 }

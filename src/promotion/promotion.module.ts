@@ -6,8 +6,8 @@ import { PromotionService } from './promotion.service';
 import { PromotionLevel } from './promotionLevels.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Promotion, PromotionLevel])],
-  providers: [PromotionService],
-  controllers: [PromotionController],
+    imports: [TypeOrmModule.forFeature([Promotion, PromotionLevel])],
+    providers: [PromotionService],
+    controllers: [PromotionController],
 })
 export class PromotionModule {}

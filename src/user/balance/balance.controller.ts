@@ -1,12 +1,12 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  UseGuards,
-  Req,
-  UnauthorizedException,
+    Controller,
+    Get,
+    Post,
+    Body,
+    Param,
+    UseGuards,
+    Req,
+    UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -20,27 +20,27 @@ import { CreateBalanceDto } from 'src/user/balance/dto/create-balance.dto';
 @ApiTags('User balance')
 @ApiBearerAuth()
 export class BalanceController {
-  constructor(private balanceService: BalanceService) {}
+    constructor(private balanceService: BalanceService) {}
 
   @Post()
-  create(
+    create(
     @AuthUser() user: User,
     @Body()
-    createUserBalanceDto: CreateBalanceDto,
-  ) {
-    if (user.id !== createUserBalanceDto.user.id)
-      if (!user.isAdmin) throw new UnauthorizedException();
-    return this.balanceService.createOrUpdate(createUserBalanceDto);
-  }
+        createUserBalanceDto: CreateBalanceDto,
+    ) {
+        if (user.id !== createUserBalanceDto.user.id)
+            if (!user.isAdmin) throw new UnauthorizedException();
+        return this.balanceService.createOrUpdate(createUserBalanceDto);
+    }
 
   @Get()
   findMy(@Req() req: Request & { user: User }) {
-    return this.balanceService.findByUser(req.user);
+      return this.balanceService.findByUser(req.user);
   }
 
   @Get(':id')
   async findByUserId(@AuthUser() user: User, @Param('id') id: string) {
-    if (user.id !== +id) if (!user.isAdmin) throw new UnauthorizedException();
-    return this.balanceService.findByUser({ id: id } as unknown as User);
+      if (user.id !== +id) if (!user.isAdmin) throw new UnauthorizedException();
+      return this.balanceService.findByUser({ id: id } as unknown as User);
   }
 }

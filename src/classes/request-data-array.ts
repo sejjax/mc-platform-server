@@ -1,21 +1,19 @@
-import { Pagination } from "./pagination";
-import { Filter } from "./filter";
-import { JsonField } from "../utils/decorators/json-field.decorator";
-import { Order } from "../utils/types/order";
-import { IsOptional, ValidateNested } from "class-validator";
-import { Type } from "class-transformer";
+import { Pagination } from './pagination';
+import { Filter } from './filter';
+import { JsonField } from '../utils/decorators/json-field.decorator';
+import { IsOptional } from 'class-validator';
 
-    export abstract class RequestDataArray<T> {
-        @JsonField(Pagination)
-        @IsOptional()
-        pagination: Pagination = new Pagination()
+export abstract class RequestDataArray<T> {
+    @JsonField(Pagination)
+    @IsOptional()
+    pagination: Pagination = new Pagination();
 
-        /* You need to apply @JsonField() in your class on this field to convert json to object */
-        @IsOptional()
-        filters: Filter = {}
+    /* You need to apply @JsonField() in your class on this field to convert json to object */
+    @IsOptional()
+    filters: Filter = {};
 
-        /* You need to apply @JsonField() in your class on this field to convert json to object */
-        @IsOptional()
+    /* You need to apply @JsonField() in your class on this field to convert json to object */
+    @IsOptional()
         /* TODO: Implement type for orderBy field. Problem: class is not assignable to {[key in string]: Order}  */
-        orderBy: Partial<{[key in keyof T]?: string | symbol}> = {}
-    }
+    orderBy: Partial<{ [key in keyof T]?: string | symbol }> = {};
+}

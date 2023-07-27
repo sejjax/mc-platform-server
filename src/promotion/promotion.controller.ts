@@ -10,10 +10,10 @@ import { PromotionService } from './promotion.service';
 @ApiBearerAuth()
 @ApiTags('Promotion')
 export class PromotionController {
-  constructor(private promotionService: PromotionService) {}
+    constructor(private promotionService: PromotionService) {}
 
   @Get()
-  async getPromotion(@AuthUser() user: User) {
-    return this.promotionService.getPromotionData(user);
-  }
+    async getPromotion(@AuthUser() user: User) {
+        return this.promotionService.getPromotionData(user);
+    }
 }

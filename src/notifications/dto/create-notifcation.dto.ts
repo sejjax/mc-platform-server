@@ -11,8 +11,8 @@ export class CreateNotificationDto {
   notification_text: string;
 
   @ApiProperty({
-    description:
-      "Should contain values like ['all'] to notify all users, or [42,68] to notify user with ids in array",
+      description:
+      'Should contain values like [\'all\'] to notify all users, or [42,68] to notify user with ids in array',
   })
   @IsArray()
   whom_notify: (string | number)[];

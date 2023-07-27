@@ -15,21 +15,21 @@ import { CalculationsService } from 'src/user/calculations/calculations.service'
 import { Calculation } from 'src/user/calculations/entities/calculation.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User, Deposit, Calculation]),
-    MulterModule.registerAsync({
-      useClass: MulterConfigService,
-    }),
-  ],
-  controllers: [UsersController],
-  providers: [
-    UsersService,
-    AccrualsService,
-    PackagesService,
-    FilesService,
-    DepositService,
-    CalculationsService,
-  ],
-  exports: [UsersService, DepositService],
+    imports: [
+        TypeOrmModule.forFeature([User, Deposit, Calculation]),
+        MulterModule.registerAsync({
+            useClass: MulterConfigService,
+        }),
+    ],
+    controllers: [UsersController],
+    providers: [
+        UsersService,
+        AccrualsService,
+        PackagesService,
+        FilesService,
+        DepositService,
+        CalculationsService,
+    ],
+    exports: [UsersService, DepositService],
 })
 export class UsersModule {}

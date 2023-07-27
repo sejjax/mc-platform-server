@@ -6,10 +6,10 @@ import { Expose } from 'class-transformer';
 export class File {
   @PrimaryGeneratedColumn('uuid')
   @ApiProperty()
-  id: string;
+      id: string;
 
   @Expose()
   @Column()
   @ApiProperty()
-  path: string;
+      path: string;
 }

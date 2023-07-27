@@ -1,67 +1,67 @@
 import { User } from 'src/users/user.entity';
 import {
-  BaseEntity,
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  OneToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
+    BaseEntity,
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinColumn,
+    OneToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
 export class Team extends BaseEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+      id: number;
 
   @Column({
-    type: 'int',
+      type: 'int',
   })
-  totalReferrals: number;
+      totalReferrals: number;
 
   @Column({
-    type: 'int',
+      type: 'int',
   })
-  firstReferrals: number;
+      firstReferrals: number;
 
   @Column({
-    type: 'numeric',
-    scale: 4,
-    precision: 18,
+      type: 'numeric',
+      scale: 4,
+      precision: 18,
   })
-  teamDeposit: number;
+      teamDeposit: number;
 
   @Column({
-    type: 'numeric',
-    scale: 4,
-    precision: 18,
+      type: 'numeric',
+      scale: 4,
+      precision: 18,
   })
-  firstDeposit: number;
+      firstDeposit: number;
 
   @Column({
-    type: 'numeric',
-    scale: 4,
-    precision: 18,
+      type: 'numeric',
+      scale: 4,
+      precision: 18,
   })
-  referralsIncome: number;
+      referralsIncome: number;
 
   @Column({
-    type: 'numeric',
-    scale: 4,
-    precision: 18,
+      type: 'numeric',
+      scale: 4,
+      precision: 18,
   })
-  firstReferralsIncome: number;
+      firstReferralsIncome: number;
 
   @OneToOne(() => User, {
-    onDelete: 'CASCADE',
+      onDelete: 'CASCADE',
   })
   @JoinColumn()
-  user: User;
+      user: User;
 
   @CreateDateColumn()
-  createdAt: Date;
+      createdAt: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+      updatedAt: Date;
 }

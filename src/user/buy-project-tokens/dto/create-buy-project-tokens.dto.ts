@@ -1,9 +1,9 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import {
-  IsDateString,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
+    IsDateString,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
 } from 'class-validator';
 import { User } from 'src/users/user.entity';
 

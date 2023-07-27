@@ -1,39 +1,39 @@
 import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
 } from 'typeorm';
 import { Accrual } from './accrual.entity';
 import { User } from './user.entity';
-import { InvestorLevel, Levels } from './consts';
+import { Levels } from './consts';
 
 @Entity()
 export class Package {
   @PrimaryGeneratedColumn()
-  id: number;
+      id: number;
 
   @ManyToOne(() => User, (user) => user.packages)
-  user: User;
+      user: User;
 
   @Column({
-    type: 'enum',
-    enum: Levels,
+      type: 'enum',
+      enum: Levels,
   })
-  level: Levels;
+      level: Levels;
 
   @Column({ type: 'decimal' })
-  cost: string;
+      cost: string;
 
   @OneToMany(() => Accrual, (accrual) => accrual.order)
-  accruals: Accrual[];
+      accruals: Accrual[];
 
   @CreateDateColumn()
-  createdAt: Date;
+      createdAt: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+      updatedAt: Date;
 }

@@ -1,12 +1,10 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import {
-  IsDateString,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
 } from 'class-validator';
 import { User } from 'src/users/user.entity';
-import { DepositPackageType } from '../deposit.types';
 
 export class CreateDepositDto {
   @ApiProperty({ description: 'Set record id for update existing' })

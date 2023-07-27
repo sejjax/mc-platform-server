@@ -4,6 +4,6 @@ export const infinity = () => {
     const _now = now();
     _now.setFullYear(_now.getFullYear() + PERIOD);
     return _now;
-}
+};
 export const epochStart = () => new Date(0);
 export const dbFormat = (date: Date) => date.toISOString();
