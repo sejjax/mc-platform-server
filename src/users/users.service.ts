@@ -633,7 +633,7 @@ export class UsersService extends BaseEntityService<User, UserFilter> {
                 select u2.id, u2."partnerId", u2."referrerId", "refLevel" + 1 as "refLevel"
                 from "user" as u2
                 join referral rf on u2."referrerId"=rf."partnerId"
-            ) select "refLevel" as level, coalesce(count(*), 0)::int from referral group by level order by level offset 1
+            ) select "refLevel" as level, coalesce(count(*), 0)::int as count from referral group by level order by level offset 1
           `,
             [user.partnerId],
         )) as ReferralCount[];
