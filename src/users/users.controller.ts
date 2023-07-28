@@ -38,6 +38,7 @@ import { ProfileUserDto } from 'src/auth/dto/profile-user.dto';
 import { RoleGuard } from 'src/roles/roles.guard';
 import { UserFilter } from './users.types';
 import { SetAgreementDto } from './dto/set-agreement.dto';
+import { ResponseReferralsCountDto } from './dto/response-referrals-count.dto';
 
 @Controller('users')
 @UseGuards(AuthGuard('jwt'))
@@ -48,12 +49,17 @@ export class UsersController extends BaseEntityController<User, UserFilter, User
         super(usersService, UserDto);
     }
 
-  @Get('/:id')
-    async findUser(@Param('id', ParseIntPipe) id: string): Promise<UserDto> {
-        const user = await this.usersService.getUser(id);
-
-        return UserDto.create(user);
+  @Get('/referrals-count')
+    async getReferralsCount(@AuthUser() user: User): Promise<ResponseReferralsCountDto> {
+        return await this.usersService.getReferralsCount(user);
     }
+
+  @Get('/:id')
+  async findUser(@Param('id', ParseIntPipe) id: string): Promise<UserDto> {
+      const user = await this.usersService.getUser(id);
+
+      return UserDto.create(user);
+  }
 
   @Get('/me/referrals')
   async countReferrals(@Req() req: any): Promise<number[]> {

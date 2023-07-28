@@ -16,25 +16,24 @@ import { ReturnUserDto } from './dto/return-user.dto';
 import { CalculationsService } from 'src/user/calculations/calculations.service';
 import { DepositStatus } from 'src/user/deposit/deposit.types';
 import {
-    IUserDataWithRole,
-    UserFilter,
-    CreateUserConfirmDto,
-    UserIdentifierDto,
     allStructureLevels,
+    CreateUserConfirmDto,
     firstStructureLevels,
-    TeamUserStructure,
     GetReferralsUserFromCustomQuery,
     GetReferralsUserWithDepositAmountFromCustomQuery,
+    IUserDataWithRole,
+    TeamUserStructure,
+    UserFilter,
+    UserIdentifierDto,
 } from './users.types';
-import {
-    getTeamTreeQuery,
-    getTeamTreeQueryWithDepositAmount,
-    TeamTreeQueryItem,
-} from 'src/utils/helpers/getTeamTree';
+import { getTeamTreeQuery, getTeamTreeQueryWithDepositAmount, TeamTreeQueryItem, } from 'src/utils/helpers/getTeamTree';
 import { SetAgreementDto } from './dto/set-agreement.dto';
 import { Status } from 'src/user/calculations/calculations.types';
 import { plainToInstance } from 'class-transformer';
 import { TeamInfoDto } from './dto/team-info.dto';
+import { ResponseReferralsCountDto } from './dto/response-referrals-count.dto';
+import {ReferralCount} from './users.types';
+import { QueryResult } from '../utils/types/queryResult';
 
 @Injectable()
 export class UsersService extends BaseEntityService<User, UserFilter> {
@@ -621,5 +620,54 @@ export class UsersService extends BaseEntityService<User, UserFilter> {
                 excludeExtraneousValues: true,
             }),
         };
+    }
+
+    async getReferralsCount(user: User): Promise<ResponseReferralsCountDto> {
+        const referralsCount =  (await this.entityManager.query(
+            `
+            with recursive referral as (
+                select u.id, u."partnerId", u."referrerId", 0 as "refLevel"
+                from "user" u
+                where u."partnerId"=$1
+                union all
+                select u2.id, u2."partnerId", u2."referrerId", "refLevel" + 1 as "refLevel"
+                from "user" as u2
+                join referral rf on u2."referrerId"=rf."partnerId"
+            ) select "refLevel" as level, coalesce(count(*), 0)::int from referral group by level order by level offset 1
+          `,
+            [user.partnerId],
+        )) as ReferralCount[];
+        return {
+            referralsCount,
+            referralsWithoutAnyDepositsCount: await this.countUsersReferralsTreeWithoutAnyDeposits(user)
+        };
+    }
+    
+    async countUsersReferralsTreeWithoutAnyDeposits(user: User): Promise<number> {
+        const [{ result }] = (await this.entityManager.query(
+            `
+            select coalesce(count(*), 0)::int as result
+            from
+                (
+                    select count(d)
+                    from (
+                             with recursive referral as (
+                                 select u.id, u."partnerId", u."referrerId", 0 as "refLevel"
+                                 from "user" u
+                                 where u."partnerId"=$1
+                                 union all
+                                 select u2.id, u2."partnerId", u2."referrerId", "refLevel" + 1 as "refLevel"
+                                 from "user" as u2
+                                          join referral rf ON u2."referrerId"=rf."partnerId"
+                             ) select rf.id from referral rf offset 1
+                         ) as u
+                    left outer join deposit d on u.id = d."userId"
+                    group by u
+                ) as res
+          `,
+            [user.partnerId],
+        )) as QueryResult<number>;
+
+        return result;
     }
 }

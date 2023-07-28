@@ -87,3 +87,7 @@ export interface GetReferralsUserFromCustomQueryWithRefs extends GetReferralsUse
 export const UserAgreement = [0, 1, 2] as const;
 export type UserAgreementType = typeof UserAgreement[number];
 
+export type ReferralCount = {
+    level: number,
+    count: number
+}
