@@ -42,6 +42,11 @@ export class PartnerDto {
   })
   deposit_amount: number;
 
+
+  @Expose()
+  @Transform(({obj}) => +obj.agreement !== 1)
+  isDataHidden: boolean;
+
   @Expose()
   @Transform(({ obj }) => {
       if (+obj.agreement === 1) return obj.teamDeposit;

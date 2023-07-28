@@ -4,3 +4,4 @@
 /.env.development
 .env
 /.idea/
+pnpm-lock.yaml
