@@ -13,7 +13,7 @@ export abstract class RequestDataArray<T> {
     filters: Filter = {};
 
     /* You need to apply @JsonField() in your class on this field to convert json to object */
+    /* TODO: Implement type for orderBy field. Problem: class is not assignable to {[key in string]: Order}  */
     @IsOptional()
-        /* TODO: Implement type for orderBy field. Problem: class is not assignable to {[key in string]: Order}  */
     orderBy: Partial<{ [key in keyof T]?: string | symbol }> = {};
 }

@@ -1,1 +1,1 @@
-export type Enum = {[key: string]: any}
+export type Enum = {[key: string]: object}
