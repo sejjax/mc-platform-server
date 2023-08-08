@@ -18,6 +18,7 @@ import { absentLocalesCheck } from './helpers/absentLocalesCheck';
 import { absentLocalesError } from './helpers/absentLocalesError';
 import { mergeDepositsWithProjects } from './helpers/mergeDepositsWithProjects';
 import { omit } from '../../utils/helpers/object';
+import {InvestmentDataDto} from 'src/user/deposit/dto/investment-data.dto';
 
 @Injectable()
 export class DepositService {
@@ -137,5 +138,16 @@ export class DepositService {
             totalInvestedAmount,
             payReadyAmount
         };
+    }
+
+    async investmentData(user: User): Promise<InvestmentDataDto[]> {
+        return await this.depositRepo.query(
+            `
+                select d."date", cast(coalesce(d."currency_amount", 0) as float) as "inInvesting", cast(coalesce(d."earn_amount", 0) as float) as "payed"
+                from "user" u
+                left join deposit d on u."id" = d."userId"
+                where u."id" = $1
+            `, [user.id]
+        );
     }
 }

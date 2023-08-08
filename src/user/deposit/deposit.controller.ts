@@ -15,6 +15,7 @@ import { InvestorProDepositAmountReponse } from './deposit.types';
 import { GetInvestmentSummaryDto } from './dto/get-investment-summary.dto';
 import { RequestDepositDto } from './dto/request-deposits.dto';
 import { foundCheck } from '../../utils/helpers/notFoundCheck';
+import {InvestmentDataDto} from 'src/user/deposit/dto/investment-data.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @ApiTags('User deposit history')
@@ -39,14 +40,16 @@ export class DepositController {
       return this.depositService.findById(id);
   }
 
+  @Get('/investments-data')
+  async getInvestmentsData(@AuthUser() user: User): Promise<InvestmentDataDto[]> {
+      return await this.depositService.investmentData(user);
+  }
+
   @Get('/:idOrGuid?')
-  async findByIdOrGuid(
-      @AuthUser() user: User,
-      @Query() query: RequestDepositDto,
-      @Param('idOrGuid') idOrGuid?: string
-  ) {
+  async findByIdOrGuid(@AuthUser() user: User, @Query() query: RequestDepositDto, @Param('idOrGuid') idOrGuid?: string) {
       const result = await this.depositService.findByUser(user, query, idOrGuid);
       foundCheck(result, 'Deposit not found');
       return result;
   }
+  
 }
