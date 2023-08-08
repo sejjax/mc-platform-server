@@ -7,7 +7,7 @@ import axios from 'axios';
 export class ProductService {
     private readonly strapiUrl: string;
     constructor() {
-        this.strapiUrl = process.env.STRAPI_API_URL;
+        this.strapiUrl = process.env.REACT_APP_STRAPI_PLATFORM_URL;
     }
     async fetchProjects(locale: Locale=Locale.EN): Promise<Product[]> {
         const res = await axios.get<Product[]>(
