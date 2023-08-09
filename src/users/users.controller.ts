@@ -42,8 +42,9 @@ import { ResponseReferralsCountDto } from './dto/response-referrals-count.dto';
 
 @Controller('users')
 @UseGuards(AuthGuard('jwt'))
-@ApiTags('Users')
 @ApiBearerAuth()
+@ApiTags('Users')
+
 export class UsersController extends BaseEntityController<User, UserFilter, UserDto> {
     constructor(private usersService: UsersService, private packagesService: PackagesService) {
         super(usersService, UserDto);
@@ -62,10 +63,7 @@ export class UsersController extends BaseEntityController<User, UserFilter, User
   }
 
   @Get('/me/referrals')
-  async countReferrals(@Req() req: any): Promise<number[]> {
-      const userId = req.user.id;
-      const user = await this.findOne(userId);
-
+  async countReferrals(@AuthUser() user: User): Promise<number[]> {
       return this.usersService.countReferrals(user.partnerId);
   }
 
@@ -86,23 +84,18 @@ export class UsersController extends BaseEntityController<User, UserFilter, User
       description: 'Photo to upload',
       type: PhotoUploadDto,
   })
-  async uploadPhoto(@Req() req: any, @UploadedFile() photo: FileUploadDto): Promise<any> {
-      return this.usersService.uploadPhoto(req.user.id, photo);
+  async uploadPhoto(@AuthUser() user: User, @UploadedFile() photo: FileUploadDto): Promise<any> {
+      return this.usersService.uploadPhoto(user.id, photo);
   }
 
   @Post('/me/fake-deposit')
-  async fakeDeposit(@Req() req: any): Promise<any> {
-      const userId = req.user.id;
-      const user = await this.usersService.findById(userId);
-
+  async fakeDeposit(@AuthUser() user: User): Promise<any> {
       return this.packagesService.buyPackage(user, Levels.Level1);
   }
 
   @Get('/me/team')
-  async getTeamInfo(@Req() req: any): Promise<any> {
-      const userId = req.user.id;
-
-      return this.usersService.getTeamInfo(userId);
+  async getTeamInfo(@AuthUser() user: User): Promise<any> {
+      return this.usersService.getTeamInfo(user.id);
   }
 
   @Get('/me/team/income')
@@ -110,20 +103,16 @@ export class UsersController extends BaseEntityController<User, UserFilter, User
   @ApiQuery({ name: 'from', type: Date, example: '2001-01-01' })
   @ApiQuery({ name: 'to', type: Date, example: '2100-01-01' })
   async getPartnersInfo(
-    @Req() req: any,
+    @AuthUser() user: User,
     @Query('level', new EnumValidationPipe(Levels)) level: Levels,
     @Query('from') from: Date,
     @Query('to') to: Date,
   ): Promise<any> {
-      const userId = req.user.id;
-      return this.usersService.getPartnersIncome(userId, level, from, to);
+      return this.usersService.getPartnersIncome(user.id, level, from, to);
   }
 
   @Get('/me/team/partners')
-  async getPartners(@Req() req: any): Promise<any> {
-      const userId = req.user.id;
-      const user = await this.usersService.getUser(userId);
-
+  async getPartners(@AuthUser() user: User): Promise<any> {
       const referrals = await this.usersService.getReferrals(user.partnerId);
 
       return plainToInstance(PartnerDto, referrals, {

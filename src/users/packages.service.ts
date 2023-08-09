@@ -37,10 +37,7 @@ export class PackagesService {
 
             await entityManager.save(pkg);
 
-            const accruals = await this.accrualsService.generateAccruals(
-                user,
-                packageCost,
-            );
+            const accruals = await this.accrualsService.generateAccruals();
 
             for (const accrual of accruals) {
                 const currentReferrerState = await entityManager.findOne(

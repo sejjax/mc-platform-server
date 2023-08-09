@@ -11,6 +11,5 @@ export class defaultNotifications1657722015777 implements MigrationInterface {
         `);
     }
 
-    // eslint-disable-next-line
-    public async down(queryRunner: QueryRunner): Promise<void> {}
+    public async down(): Promise<void> {}
 }

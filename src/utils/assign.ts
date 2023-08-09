@@ -1,5 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/ban-types
-export function assign<T extends {}>(to: T, from: Partial<T>): void {
+export function assign<T extends object>(to: T, from: Partial<T>): void {
     for (const key in from) {
         const value = from[key];
 

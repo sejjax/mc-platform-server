@@ -6,8 +6,7 @@ export const formatString = (str: string, args: {[key in string]: string | symbo
     if(!isArrayUniq(names))
         throw new Error('Key parameters must be uniq');
     names.forEach(name => {
-        // eslint-disable-next-line
-        if(!args.hasOwnProperty(name))
+        if(!Object.hasOwn(args, name))
             throw new Error(`Passed value for parameter $${name} expected`);
         str = str.replace(`$${name}`, args[name].toString());
     });

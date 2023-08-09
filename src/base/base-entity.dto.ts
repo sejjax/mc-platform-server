@@ -11,7 +11,6 @@ export interface BaseEntityDtoInterface<
   create(items: EntityDocument[] | PopulatedDocument[]): EntityDto[];
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function BaseEntityDto<
   EntityDocument extends EmptyObject,
   EntityDtoResult,
