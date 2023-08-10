@@ -8,4 +8,9 @@ export class InvestmentInfoDto {
     futureInvestmentsReturn: number;
     futurePayed: number;
     finalProfit: number;
+    graphicData: {
+        date: Date;
+        inInvesting: number;
+        payed: number;
+    }[];
 }

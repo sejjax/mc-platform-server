@@ -18,7 +18,6 @@ import { absentLocalesCheck } from './helpers/absentLocalesCheck';
 import { absentLocalesError } from './helpers/absentLocalesError';
 import { mergeDepositsWithProjects } from './helpers/mergeDepositsWithProjects';
 import { omit } from '../../utils/helpers/object';
-import { InvestmentDataDto } from 'src/user/deposit/dto/investment-data.dto';
 import { InvestmentInfoDto } from 'src/user/deposit/dto/investment-info.dto';
 
 @Injectable()
@@ -141,17 +140,6 @@ export class DepositService {
         };
     }
 
-    async investmentData(user: User): Promise<InvestmentDataDto[]> {
-        return await this.depositRepo.query(
-            `
-                select d."date", cast(coalesce(d."currency_amount", 0) as float) as "inInvesting", cast(coalesce(d."earn_amount", 0) as float) as "payed"
-                from "user" u
-                left join deposit d on u."id" = d."userId"
-                where u."id" = $1
-            `, [user.id]
-        );
-    }
-
     async investmentInfo(user: User): Promise<InvestmentInfoDto> {
         const [{
             totalInvestments,
@@ -246,8 +234,17 @@ export class DepositService {
                     from "deposit" d
                     where d."userId" = $1
                 ) as "finalProfit"
-            `, [user.id]
-        );
+            `, [user.id]);
+
+        const graphicData = await this.depositRepo.query(`
+                select d."date",
+                       cast(coalesce(d."currency_amount", 0) as float) as "inInvesting",
+                       cast(coalesce(d."earn_amount", 0) as float)     as "payed"
+                from "deposit" d
+                where d."userId" = $1
+                order by d."date"
+            `, [user.id]);
+
         return {
             totalInvestments,
             currentInvestments,
@@ -257,7 +254,8 @@ export class DepositService {
             futureIncome,
             futureInvestmentsReturn,
             futurePayed,
-            finalProfit
+            finalProfit,
+            graphicData
         };
     }
 }

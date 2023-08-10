@@ -15,7 +15,6 @@ import { InvestorProDepositAmountReponse } from './deposit.types';
 import { GetInvestmentSummaryDto } from './dto/get-investment-summary.dto';
 import { RequestDepositDto } from './dto/request-deposits.dto';
 import { foundCheck } from '../../utils/helpers/notFoundCheck';
-import { InvestmentDataDto } from 'src/user/deposit/dto/investment-data.dto';
 import { InvestmentInfoDto } from 'src/user/deposit/dto/investment-info.dto';
 
 @UseGuards(AuthGuard('jwt'))
@@ -39,11 +38,6 @@ export class DepositController {
   async findByUserId(@AuthUser() user: User, @Param('id') id: number) {
       if (user.id !== +id) if (!user.isAdmin) throw new UnauthorizedException();
       return this.depositService.findById(id);
-  }
-
-  @Get('/investments-data')
-  async getInvestmentsData(@AuthUser() user: User): Promise<InvestmentDataDto[]> {
-      return await this.depositService.investmentData(user);
   }
   
   @Get('/investments-info')
