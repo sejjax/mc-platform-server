@@ -18,7 +18,8 @@ import { absentLocalesCheck } from './helpers/absentLocalesCheck';
 import { absentLocalesError } from './helpers/absentLocalesError';
 import { mergeDepositsWithProjects } from './helpers/mergeDepositsWithProjects';
 import { omit } from '../../utils/helpers/object';
-import {InvestmentDataDto} from 'src/user/deposit/dto/investment-data.dto';
+import { InvestmentDataDto } from 'src/user/deposit/dto/investment-data.dto';
+import { InvestmentInfoDto } from 'src/user/deposit/dto/investment-info.dto';
 
 @Injectable()
 export class DepositService {
@@ -149,5 +150,114 @@ export class DepositService {
                 where u."id" = $1
             `, [user.id]
         );
+    }
+
+    async investmentInfo(user: User): Promise<InvestmentInfoDto> {
+        const [{
+            totalInvestments,
+            currentInvestments,
+            totalIncome,
+            totalInvestmentsReturn,
+            totalPayed,
+            futureIncome,
+            futureInvestmentsReturn,
+            futurePayed,
+            finalProfit
+        }] = await this.depositRepo.query(
+            `
+                select (
+                    select sum(d.currency_amount)
+                    from "deposit" d
+                    where d."userId" = $1
+                ) as "totalInvestments",
+                (
+                    select sum(d.currency_amount)
+                    from "deposit" d
+                    where d."userId" = $1 and not d."isClosed"
+                ) as "currentInvestments",
+                (
+                    select coalesce(sum(c.amount), 0)
+                    from "calculation" c
+                    where c."userId" = $1 and c."payment_date" < now() and c."status" != 'nulled'
+                ) as "totalIncome",
+                (
+                    select coalesce(sum(c.amount), 0)
+                    from "calculation" c
+                    left join deposit d on c."productId" = d."id"
+                    where c."userId" = $1 and d."isClosed" and c."status" != 'nulled'
+                ) as "totalInvestmentsReturn",
+                (
+                    select (
+                        (
+                            select coalesce(sum(c.amount), 0)
+                            from "calculation" c
+                            where c."userId" = $1 and c."payment_date" < now() and c."status" != 'nulled'
+                        )
+                        +
+                        (
+                            select coalesce(sum(c.amount), 0)
+                            from "calculation" c
+                            left join deposit d on c."productId" = d."id"
+                            where c."userId" = $1 and d."isClosed" and c."status" != 'nulled'
+                        )
+                    )
+                ) as "totalPayed",
+                (
+                    select coalesce(sum(c.amount), 0)
+                    from "calculation" c
+                    where c."userId" = $1 and c."status" = 'waiting'
+                ) as "futureIncome",
+                (
+                    select greatest(0, sum(
+                        d.currency_amount -
+                        (
+                            select coalesce(sum(c.amount), 0)
+                            from "calculation" c
+                            where c."productId" = d."id" and c.status != 'nulled'
+                        )
+                    ))
+                    from "deposit" d
+                    where d."userId" = $1
+                ) as "futureInvestmentsReturn",
+                (
+                    select (
+                        (
+                            select coalesce(sum(c.amount), 0)
+                            from "calculation" c
+                            where c."userId" = $1 and c."status" = 'waiting'
+                        )
+                        +
+                        (
+                            select greatest(0, sum(
+                                d.currency_amount -
+                                (
+                                    select coalesce(sum(c.amount), 0)
+                                    from "calculation" c
+                                    where c."productId" = d."id" and c.status != 'nulled'
+                                )
+                            ))
+                            from "deposit" d
+                            where d."userId" = $1
+                        )
+                    )
+                ) as "futurePayed",
+                (
+                    select sum(d.currency_amount)
+                    from "deposit" d
+                    where d."userId" = $1
+                ) as "finalProfit"
+            `, [user.id]
+        );
+        return {
+            totalInvestments,
+            currentInvestments,
+            totalIncome,
+            totalInvestmentsReturn,
+            totalPayed,
+            futureIncome,
+            futureInvestmentsReturn,
+            futurePayed,
+            finalProfit
+        };
     }
 }
