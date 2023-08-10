@@ -242,7 +242,7 @@ export class DepositService {
                     )
                 ) as "futurePayed",
                 (
-                    select sum(d.currency_amount)
+                    select sum(greatest(0, d.earn_amount - d.currency_amount))
                     from "deposit" d
                     where d."userId" = $1
                 ) as "finalProfit"
