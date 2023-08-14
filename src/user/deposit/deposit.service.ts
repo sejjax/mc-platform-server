@@ -237,13 +237,22 @@ export class DepositService {
             `, [user.id]);
 
         const graphicData = await this.depositRepo.query(`
-                select d."date",
-                       cast(coalesce(d."currency_amount", 0) as float) as "inInvesting",
-                       cast(coalesce(d."earn_amount", 0) as float)     as "payed"
-                from "deposit" d
-                where d."userId" = $1
-                order by d."date"
-            `, [user.id]);
+            select c."createdAt" as "date",
+                   (
+                       select coalesce(sum(d."currency_amount"), 0)
+                       from deposit d
+                       where d."id" = c."productId"
+                   ) as "inInvesting",
+                   (
+                       select coalesce(sum(c1."amount"), 0)
+                       from calculation c1
+                       where c."productId" = c1."productId" and c."createdAt" <= c1."createdAt"
+                   ) as "payed"
+            from calculation c
+            join deposit d on c."productId" = d."id"
+            where c."userId" = $1 and c."status" != 'nulled' and d."date" < c."payment_date"
+            order by "date"
+        `, [user.id]);
 
         return {
             totalInvestments,
