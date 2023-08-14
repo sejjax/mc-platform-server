@@ -237,7 +237,7 @@ export class DepositService {
             `, [user.id]);
 
         const graphicData = await this.depositRepo.query(`
-            select c."createdAt" as "date",
+            select c."payment_date" as "date",
                    (
                        select coalesce(sum(d."currency_amount"), 0)
                        from deposit d
@@ -246,7 +246,7 @@ export class DepositService {
                    (
                        select coalesce(sum(c1."amount"), 0)
                        from calculation c1
-                       where c."productId" = c1."productId" and c."createdAt" <= c1."createdAt"
+                       where c."productId" = c1."productId" and c."payment_date" <= c1."payment_date"
                    ) as "payed"
             from calculation c
             join deposit d on c."productId" = d."id"
