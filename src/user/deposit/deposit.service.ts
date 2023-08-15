@@ -237,21 +237,12 @@ export class DepositService {
             `, [user.id]);
 
         const graphicData = await this.depositRepo.query(`
-            select c."payment_date" as "date",
-                   (
-                       select coalesce(sum(d."currency_amount"), 0)
-                       from deposit d
-                       where d."id" = c."productId"
-                   ) as "inInvesting",
-                   (
-                       select coalesce(sum(c1."amount"), 0)
-                       from calculation c1
-                       where c."productId" = c1."productId" and c."payment_date" <= c1."payment_date"
-                   ) as "payed"
+            select date_trunc('month', c."payment_date") as "date", sum(c.amount) as "payed", sum(d.currency_amount) as "inInvesting"
             from calculation c
-            join deposit d on c."productId" = d."id"
+                     join deposit d on c."productId" = d."id"
             where c."userId" = $1 and c."status" != 'nulled' and d."date" < c."payment_date"
-            order by "date"
+            group by date_trunc('month', c."payment_date")
+            order by date_trunc('month', c."payment_date")
         `, [user.id]);
 
         return {
