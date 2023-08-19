@@ -20,6 +20,9 @@ import { WalletHistoryController } from 'src/user/wallet-history/wallet-history.
 import { Calculation } from './calculations/entities/calculation.entity';
 import { CalculationsService } from './calculations/calculations.service';
 import { CalculationsController } from './calculations/calculations.controller';
+import { ReferralsController } from 'src/user/referrals/referrals.controller';
+import { ReferralsService } from 'src/user/referrals/referrals.service';
+import { User } from 'src/users/user.entity';
 
 @Module({
     imports: [
@@ -30,6 +33,7 @@ import { CalculationsController } from './calculations/calculations.controller';
             WithdrawHistory,
             BuyProjectTokens,
             Calculation,
+            User,
         ]),
     ],
     controllers: [
@@ -39,6 +43,7 @@ import { CalculationsController } from './calculations/calculations.controller';
         WithdrawHistoryController,
         BuyProjectTokensController,
         CalculationsController,
+        ReferralsController,
     ],
     providers: [
         UsersService,
@@ -49,6 +54,7 @@ import { CalculationsController } from './calculations/calculations.controller';
         WithdrawHistoryService,
         BuyProjectTokensService,
         CalculationsService,
+        ReferralsService,
     ],
 })
 export class UserModule {}
