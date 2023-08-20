@@ -116,11 +116,11 @@ export class ReferralsService {
                 select
                     date_trunc('month', d."createdAt") as "date",
 
-                    sum(sum(d.currency_amount * case when d."userId" = $1 then 1 else 0 end))
-                        over (order by date_trunc('month', d."createdAt")) as "investedPersonal",
+                    cast(sum(sum(d.currency_amount * case when d."userId" = $1 then 1 else 0 end))
+                        over (order by date_trunc('month', d."createdAt")) as float) as "investedPersonal",
 
-                    sum(sum(d.currency_amount * case when d."userId" != $1 then 1 else 0 end))
-                        over (order by date_trunc('month', d."createdAt")) as "investedStructure"
+                    cast(sum(sum(d.currency_amount * case when d."userId" != $1 then 1 else 0 end))
+                        over (order by date_trunc('month', d."createdAt")) as float) as "investedStructure"
                 from users_tree ut
                 inner join "deposit" d on d."userId" = ut."id"
                 group by date_trunc('month', d."createdAt")
@@ -134,14 +134,14 @@ export class ReferralsService {
                 select
                     date_trunc('month', c."createdAt") as "date",
 
-                    sum(sum(c.amount * case when c.accrual_type = 'product' then 1 else 0 end))
-                        over (order by date_trunc('month', c."createdAt")) as "personalInvestments",
+                    cast(sum(sum(c.amount * case when c.accrual_type = 'product' then 1 else 0 end))
+                        over (order by date_trunc('month', c."createdAt")) as float) as "personalInvestments",
 
-                    sum(sum(c.amount * case when c.accrual_type = 'referral' then 1 else 0 end))
-                        over (order by date_trunc('month', c."createdAt")) as "structureInvestments",
+                    cast(sum(sum(c.amount * case when c.accrual_type = 'referral' then 1 else 0 end))
+                        over (order by date_trunc('month', c."createdAt")) as float) as "structureInvestments",
 
-                    sum(sum(c.amount * case when c.accrual_type = 'passive' then 1 else 0 end))
-                        over (order by date_trunc('month', c."createdAt")) as "passiveInvestments"
+                    cast(sum(sum(c.amount * case when c.accrual_type = 'passive' then 1 else 0 end))
+                        over (order by date_trunc('month', c."createdAt")) as float) as "passiveInvestments"
 
                 from "calculation" c
                 where c.status != 'nulled' and c."userId" = $1
