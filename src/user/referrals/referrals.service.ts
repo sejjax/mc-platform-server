@@ -45,7 +45,7 @@ export class ReferralsService {
                     )
                     select count(*)
                     from users_tree
-                ) as int) as "usersInStructure"
+                ) as int) as "referralsCount"
             from "user" u
             left join "file" f on u."photoId" = f."id"
             where u."referrerId" = $1
