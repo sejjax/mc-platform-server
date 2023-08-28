@@ -17,8 +17,8 @@ export class ReferralsController {
     constructor(
         private referralsService: ReferralsService,
     ) {}
-    @Get('/list')
-    async getReferralsList(@AuthUser() user: User): Promise<ReferralUserDto[]> {
+    @Get('/tree')
+    async getReferralsTree(@AuthUser() user: User): Promise<ReferralUserDto[]> {
         return await this.referralsService.getReferrals(user.partnerId);
     }
 

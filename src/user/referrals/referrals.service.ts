@@ -22,6 +22,7 @@ export class ReferralsService {
                 u."partnerId",
                 u."fullName",
                 u."mobile",
+                ('/' || f."path") as "avatarURL",
                 cast($2 as int) as "refLevel",
                 (
                     select cast(coalesce(sum(c."amount"), 0) as float)
@@ -32,8 +33,21 @@ export class ReferralsService {
                     select cast(coalesce(sum(c."amount"), 0) as float)
                     from "calculation" c
                     where c."userId" = u."id" and c."status" != 'nulled' and c."accrual_type" = 'referral'
-                ) as "structureInvestments"
+                ) as "structureInvestments",
+                cast((
+                    with recursive users_tree as (
+                        select u2."partnerId", u2."referrerId"
+                        from "user" u2
+                        where u2."referrerId" = u."partnerId"
+                        union all
+                        select u3."partnerId", u3."referrerId"
+                        from "user" u3 join users_tree on users_tree."partnerId" = u3."referrerId"
+                    )
+                    select count(*)
+                    from users_tree
+                ) as int) as "usersInStructure"
             from "user" u
+            left join "file" f on u."photoId" = f."id"
             where u."referrerId" = $1
         `, [userPartnerId, refLevel]);
 
@@ -51,11 +65,19 @@ export class ReferralsService {
                 u."fullName",
                 u."createdAt",
                 u."mobile",
+                ('/' || f."path") as "avatarURL",
                 u.investor_level as "partnerLevel",
                 cast((
+                    with recursive users_tree as (
+                        select u2."partnerId", u2."referrerId"
+                        from "user" u2
+                        where u2."referrerId" = u."partnerId"
+                        union all
+                        select u3."partnerId", u3."referrerId"
+                        from "user" u3 join users_tree on users_tree."partnerId" = u3."referrerId"
+                    )
                     select count(*)
-                    from "user" u2
-                    where u2."referrerId" = u."partnerId"
+                    from "users_tree" ut
                 ) as int) as "usersInStructure",
                 (
                     select cast(coalesce(sum(c."amount"), 0) as float)
@@ -73,6 +95,7 @@ export class ReferralsService {
                     where c."userId" = u."id" and c."status" != 'nulled' and c."accrual_type" = 'passive'
                 ) as "passiveInvestments"
             from "user" u
+            left join "file" f on u."photoId" = f."id"
             where u."id" = $1
         `, [user.id]);
     }
