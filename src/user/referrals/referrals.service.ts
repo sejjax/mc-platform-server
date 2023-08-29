@@ -57,6 +57,44 @@ export class ReferralsService {
         }));
     }
 
+    async getPartOfReferrals(userPartnerId: string, refLevel: number): Promise<ReferralUserDto[]> {
+        return await this.usersRepo.query(
+            `
+            select
+                u."partnerId",
+                u."fullName",
+                u."mobile",
+                ('/' || f."path") as "avatarURL",
+                cast($2 + 1 as int) as "refLevel",
+                (
+                    select cast(coalesce(sum(c."amount"), 0) as float)
+                    from "calculation" c
+                    where c."userId" = u."id" and c."status" != 'nulled' and c."accrual_type" = 'product'
+                ) as "personalInvestments",
+                (   
+                    select cast(coalesce(sum(c."amount"), 0) as float)
+                    from "calculation" c
+                    where c."userId" = u."id" and c."status" != 'nulled' and c."accrual_type" = 'referral'
+                ) as "structureInvestments",
+                cast((
+                    with recursive users_tree as (
+                        select u2."partnerId", u2."referrerId"
+                        from "user" u2
+                        where u2."referrerId" = u."partnerId"
+                        union all
+                        select u3."partnerId", u3."referrerId"
+                        from "user" u3 join users_tree on users_tree."partnerId" = u3."referrerId"
+                    )
+                    select count(*)
+                    from users_tree
+                ) as int) as "referralsCount",
+                null as "referrals"
+            from "user" u
+            left join "file" f on u."photoId" = f."id"
+            where u."referrerId" = $1
+        `, [userPartnerId, refLevel]);
+    }
+
     async getUserAsReferralUser(user: User) {
         return await this.usersRepo.query(
             `

@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, DefaultValuePipe, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthUser } from 'src/utils/decorators/auth-user.decorator';
@@ -20,6 +20,15 @@ export class ReferralsController {
     @Get('/tree')
     async getReferralsTree(@AuthUser() user: User): Promise<ReferralUserDto[]> {
         return await this.referralsService.getReferrals(user.partnerId);
+    }
+
+    @Get('/treePart/:userPartnerId?')
+    async getReferralsTreePart(
+        @AuthUser() user: User,
+        @Param('userPartnerId') userPartnerId?: string,
+        @Query('userRefLevel', new DefaultValuePipe(null)) userRefLevel?: number
+    ): Promise<ReferralUserDto[]> {
+        return await this.referralsService.getPartOfReferrals(userPartnerId ?? user.partnerId, userRefLevel ?? 0);
     }
 
     @Get('/me')

@@ -6,6 +6,6 @@ export class ReferralUserDto {
     refLevel: number;
     personalInvestments: number;
     structureInvestments: number;
-    usersInStructure: number;
-    referrals: ReferralUserDto[];
+    referralsCount: number;
+    referrals: ReferralUserDto[] | null;
 }
