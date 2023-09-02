@@ -15,44 +15,11 @@ export class ReferralsService {
     ) {
     }
 
-    async getReferrals(userPartnerId: string, refLevel: number = 0): Promise<ReferralUserDto[]> {
-        const notFullUsersTree: ReferralUserDto[] = await this.usersRepo.query(
-            `
-            select
-                u."partnerId",
-                u."fullName",
-                u."mobile",
-                ('/' || f."path") as "avatarURL",
-                cast($2 as int) as "refLevel",
-                (
-                    select cast(coalesce(sum(c."amount"), 0) as float)
-                    from "calculation" c
-                    where c."userId" = u."id" and c."status" != 'nulled' and c."accrual_type" = 'product'
-                ) as "personalInvestments",
-                (   
-                    select cast(coalesce(sum(c."amount"), 0) as float)
-                    from "calculation" c
-                    where c."userId" = u."id" and c."status" != 'nulled' and c."accrual_type" = 'referral'
-                ) as "structureInvestments",
-                cast((
-                    with recursive users_tree as (
-                        select u2."partnerId", u2."referrerId"
-                        from "user" u2
-                        where u2."referrerId" = u."partnerId"
-                        union all
-                        select u3."partnerId", u3."referrerId"
-                        from "user" u3 join users_tree on users_tree."partnerId" = u3."referrerId"
-                    )
-                    select count(*)
-                    from users_tree
-                ) as int) as "referralsCount"
-            from "user" u
-            left join "file" f on u."photoId" = f."id"
-            where u."referrerId" = $1
-        `, [userPartnerId, refLevel]);
+    async getReferrals(userPartnerId: string, refLevel: number = -1): Promise<ReferralUserDto[]> {
+        const notFullUsersTree: ReferralUserDto[] = await this.getPartOfReferrals(userPartnerId, refLevel);
 
         return await Promise.all(notFullUsersTree.map(async refUser => {
-            refUser.referrals = await this.getReferrals(refUser.partnerId, refUser.refLevel + 1);
+            refUser.referrals = await this.getReferrals(refUser.partnerId, refUser.refLevel);
             return refUser;
         }));
     }
@@ -62,6 +29,7 @@ export class ReferralsService {
             `
             select
                 u."partnerId",
+                u."referrerId",
                 u."fullName",
                 u."mobile",
                 ('/' || f."path") as "avatarURL",

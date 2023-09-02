@@ -17,12 +17,12 @@ export class ReferralsController {
     constructor(
         private referralsService: ReferralsService,
     ) {}
-    @Get('/tree')
+    @Get('/tree/full')
     async getReferralsTree(@AuthUser() user: User): Promise<ReferralUserDto[]> {
         return await this.referralsService.getReferrals(user.partnerId);
     }
 
-    @Get('/treePart')
+    @Get('/tree/part')
     async getReferralsTreePart(
         @AuthUser() user: User,
         @Query('userPartnerId', new DefaultValuePipe(null)) userPartnerId?: string,
