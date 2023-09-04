@@ -237,12 +237,12 @@ export class DepositService {
             `, [user.id]);
 
         const graphicData = await this.depositRepo.query(`
-            select date_trunc('month', c."payment_date") as "date", sum(c.amount) as "payed", sum(d.currency_amount) as "inInvesting"
+            select date_trunc('month', c."createdAt") as "date", sum(c.amount) as "payed", sum(d.currency_amount) as "inInvesting"
             from calculation c
                      join deposit d on c."productId" = d."id"
-            where c."userId" = $1 and c."status" != 'nulled' and d."date" < c."payment_date"
-            group by date_trunc('month', c."payment_date")
-            order by date_trunc('month', c."payment_date")
+            where c."userId" = $1 and c."status" != 'nulled' and d."date" < c."createdAt"
+            group by date_trunc('month', c."createdAt")
+            order by date_trunc('month', c."createdAt")
         `, [user.id]);
 
         return {
