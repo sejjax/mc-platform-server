@@ -34,6 +34,7 @@ import { TeamInfoDto } from './dto/team-info.dto';
 import { ResponseReferralsCountDto } from './dto/response-referrals-count.dto';
 import {ReferralCount} from './users.types';
 import { QueryResult } from '../utils/types/queryResult';
+import { RequestTeamStructureReferralsDto } from 'src/users/dto/request-team-structure.dto';
 
 @Injectable()
 export class UsersService extends BaseEntityService<User, UserFilter> {
@@ -142,8 +143,8 @@ export class UsersService extends BaseEntityService<User, UserFilter> {
         return result;
     }
 
-    async getReferrals(referrerId: string): Promise<GetReferralsUserFromCustomQuery[]> {
-        const query = getTeamTreeQuery(referrerId);
+    async getReferrals(referrerId: string, requestDataArray?: RequestTeamStructureReferralsDto): Promise<GetReferralsUserFromCustomQuery[]> {
+        const query = getTeamTreeQuery(referrerId, requestDataArray);
         const result: TeamTreeQueryItem[] = await this.entityManager.query(query);
         // console.log('result', result);
         return result.map<GetReferralsUserFromCustomQuery>(
@@ -590,8 +591,8 @@ export class UsersService extends BaseEntityService<User, UserFilter> {
         return baseDepositLevel;
     }
 
-    async getUserStructure(user: User, requestedPartnerId: string): Promise<TeamUserStructure> {
-        const userReferrals = await this.getReferrals(user.partnerId);
+    async getUserStructure(user: User, requestedPartnerId: string, query: RequestTeamStructureReferralsDto): Promise<TeamUserStructure> {
+        const userReferrals = await this.getReferrals(user.partnerId, query);
         const isUserHaveAccess = userReferrals.find((user) => user.partnerId === requestedPartnerId);
         if (!isUserHaveAccess) {
             throw new ForbiddenException();
@@ -604,7 +605,7 @@ export class UsersService extends BaseEntityService<User, UserFilter> {
         if (+agreement !== 1) {
             throw new ForbiddenException();
         }
-        const referrals = await this.getReferrals(partnerId);
+        const referrals = await this.getReferrals(partnerId, query);
         const teamInfo = await this.entityManager.findOne(Team, {
             where: {
                 user: {

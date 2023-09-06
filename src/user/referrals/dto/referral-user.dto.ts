@@ -1,5 +1,6 @@
 export class ReferralUserDto {
     partnerId: string;
+    referrerId: string;
     fullName: string;
     mobile: string;
     avatarURL: string | null;

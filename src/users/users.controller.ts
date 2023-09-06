@@ -39,6 +39,7 @@ import { RoleGuard } from 'src/roles/roles.guard';
 import { UserFilter } from './users.types';
 import { SetAgreementDto } from './dto/set-agreement.dto';
 import { ResponseReferralsCountDto } from './dto/response-referrals-count.dto';
+import { RequestTeamStructureReferralsDto } from 'src/users/dto/request-team-structure.dto';
 
 @Controller('users')
 @UseGuards(AuthGuard('jwt'))
@@ -112,8 +113,11 @@ export class UsersController extends BaseEntityController<User, UserFilter, User
   }
 
   @Get('/me/team/partners')
-  async getPartners(@AuthUser() user: User): Promise<any> {
-      const referrals = await this.usersService.getReferrals(user.partnerId);
+  async getPartners(
+      @AuthUser() user: User,
+      @Query() query: RequestTeamStructureReferralsDto
+  ): Promise<any> {
+      const referrals = await this.usersService.getReferrals(user.partnerId, query);
 
       return plainToInstance(PartnerDto, referrals, {
           excludeExtraneousValues: true,
@@ -171,10 +175,12 @@ export class UsersController extends BaseEntityController<User, UserFilter, User
   async getTeamUserStructure(
     @Param('partnerId') requestedPartnerId: string,
     @AuthUser() user: User,
+    @Query() query: RequestTeamStructureReferralsDto
   ) {
       const { fullName, partnerId, referrals, teamInfo } = await this.usersService.getUserStructure(
           user,
           requestedPartnerId,
+          query,
       );
       return {
           fullName,

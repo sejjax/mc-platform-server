@@ -1,4 +1,6 @@
 import { User } from 'src/users/user.entity';
+import { RequestTeamStructureReferralsDto } from 'src/users/dto/request-team-structure.dto';
+import { strclean } from 'src/utils/helpers/sql';
 
 export interface TeamTreeQueryItem
   extends Pick<
@@ -13,7 +15,7 @@ export interface TeamTreeQueryItem
   teamDeposit: string | null;
 }
 
-export const getTeamTreeQuery = (partnerId: string) =>
+export const getTeamTreeQuery = (partnerId: string, qInfo: RequestTeamStructureReferralsDto) =>
     `with recursive users_tree as(
     select 
       u.id,
@@ -65,6 +67,15 @@ export const getTeamTreeQuery = (partnerId: string) =>
       ut.level,
       ut.country,
       ut."createdAt",t."firstReferrals",t."teamDeposit"
+
+    order by ${strclean([
+        qInfo?.orderBy?.partnerId ? `ut."partnerId" ${qInfo.orderBy.partnerId}` : '',
+        qInfo?.orderBy?.fullName ? `ut."fullName" ${qInfo.orderBy.fullName}` : '',
+        qInfo?.orderBy?.mobile ? `ut."mobile" ${qInfo.orderBy.mobile}` : ''
+    ]).join(', ') || 'not null'}
+
+    limit ${qInfo?.pagination?.take ?? null}
+    offset ${qInfo?.pagination?.skip ?? null}
 `;
 
 export const getTeamTreeQueryWithDepositAmount = (partnerId: string) =>
