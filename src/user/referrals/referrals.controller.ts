@@ -26,9 +26,8 @@ export class ReferralsController {
     async getReferralsTreePart(
         @AuthUser() user: User,
         @Query('userPartnerId', new DefaultValuePipe(null)) userPartnerId?: string,
-        @Query('userRefLevel', new DefaultValuePipe(null)) userRefLevel?: number
     ): Promise<ReferralUserDto[]> {
-        return await this.referralsService.getPartOfReferrals(userPartnerId ?? user.partnerId, userRefLevel ?? -1);
+        return await this.referralsService.getPartOfReferrals(userPartnerId ?? user.partnerId);
     }
 
     @Get('/me')

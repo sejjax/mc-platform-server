@@ -15,16 +15,16 @@ export class ReferralsService {
     ) {
     }
 
-    async getReferrals(userPartnerId: string, refLevel: number = -1): Promise<ReferralUserDto[]> {
-        const notFullUsersTree: ReferralUserDto[] = await this.getPartOfReferrals(userPartnerId, refLevel);
+    async getReferrals(userPartnerId: string): Promise<ReferralUserDto[]> {
+        const notFullUsersTree: ReferralUserDto[] = await this.getPartOfReferrals(userPartnerId);
 
         return await Promise.all(notFullUsersTree.map(async refUser => {
-            refUser.referrals = await this.getReferrals(refUser.partnerId, refUser.refLevel);
+            refUser.referrals = await this.getReferrals(refUser.partnerId);
             return refUser;
         }));
     }
 
-    async getPartOfReferrals(userPartnerId: string, refLevel: number): Promise<ReferralUserDto[]> {
+    async getPartOfReferrals(userPartnerId: string): Promise<ReferralUserDto[]> {
         return await this.usersRepo.query(
             `
             select
@@ -32,8 +32,8 @@ export class ReferralsService {
                 u."referrerId",
                 u."fullName",
                 u."mobile",
+                u."level" as "refLevel",
                 ('/' || f."path") as "avatarURL",
-                cast($2 + 1 as int) as "refLevel",
                 (
                     select cast(coalesce(sum(c."amount"), 0) as float)
                     from "calculation" c
@@ -60,7 +60,7 @@ export class ReferralsService {
             from "user" u
             left join "file" f on u."photoId" = f."id"
             where u."referrerId" = $1
-        `, [userPartnerId, refLevel]);
+        `, [userPartnerId]);
     }
 
     async getUserAsReferralUser(user: User) {
