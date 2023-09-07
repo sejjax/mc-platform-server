@@ -15,6 +15,10 @@ export class RequestTeamStructureReferralsOrderBy {
     @IsEnum(Order)
     @IsOptional()
     mobile?: Order;
+
+    @IsEnum(Order)
+    @IsOptional()
+    email?: Order;
 }
 
 export class RequestTeamStructureReferralsDto extends RequestDataArray<RequestTeamStructureReferralsOrderBy> {

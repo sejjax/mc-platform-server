@@ -60,6 +60,7 @@ export interface GetReferralsUserFromCustomQuery {
   id: number;
   level: number;
   mobile: string;
+  email: string;
   partnerId: string;
   referrerId: string;
   country: string;

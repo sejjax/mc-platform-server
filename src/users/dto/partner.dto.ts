@@ -36,6 +36,9 @@ export class PartnerDto {
   mobile: string;
 
   @Expose()
+  email: string;
+
+  @Expose()
   @Transform(({ obj }) => {
       if (+obj.agreement === 1) return obj.deposit_amount;
       return 'Данные скрыты';
