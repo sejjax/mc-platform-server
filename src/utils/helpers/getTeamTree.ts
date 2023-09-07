@@ -71,7 +71,8 @@ export const getTeamTreeQuery = (partnerId: string, qInfo: RequestTeamStructureR
     order by ${strclean([
         qInfo?.orderBy?.partnerId ? `ut."partnerId" ${qInfo.orderBy.partnerId}` : '',
         qInfo?.orderBy?.fullName ? `ut."fullName" ${qInfo.orderBy.fullName}` : '',
-        qInfo?.orderBy?.mobile ? `ut."mobile" ${qInfo.orderBy.mobile}` : ''
+        qInfo?.orderBy?.mobile ? `ut."mobile" ${qInfo.orderBy.mobile}` : '',
+        qInfo?.orderBy?.email ? `ut."email" ${qInfo.orderBy.email}` : ''
     ]).join(', ') || 'not null'}
 
     limit ${qInfo?.pagination?.take ?? null}
