@@ -106,7 +106,7 @@ export class ReferralsService {
         `, [user.id]);
     }
 
-    async getGraphicInvitedUsers(user: User): Promise<GraphicDataInvitedUsersDto[]> {
+    async getGraphicInvitedUsers(user: User, partnerId?: string): Promise<GraphicDataInvitedUsersDto[]> {
         return await this.usersRepo.query(
             `
                 with recursive users_tree as (
@@ -128,16 +128,16 @@ export class ReferralsService {
                 from users_tree ut
                 group by "date"
                 order by "date"
-        `, [user.partnerId]);
+        `, [partnerId ?? user.partnerId]);
     }
 
-    async getGraphicInvestedFunds(user: User): Promise<GraphicDataInvestedFundsDto[]> {
+    async getGraphicInvestedFunds(user: User, partnerId?: string): Promise<GraphicDataInvestedFundsDto[]> {
         return await this.usersRepo.query(
             `
                 with recursive users_tree as (
                     select u2."createdAt", u2."id", u2."partnerId", u2."referrerId"
                     from "user" u2
-                    where u2."referrerId" = $2 or u2."partnerId" = $2
+                    where u2."referrerId" = $1 or u2."partnerId" = $1
                     union all
                     select u3."createdAt", u3."id", u3."partnerId", u3."referrerId"
                     from "user" u3 join users_tree on users_tree."partnerId" = u3."referrerId"
@@ -145,19 +145,19 @@ export class ReferralsService {
                 select
                     date_trunc('month', d."createdAt") as "date",
 
-                    cast(sum(sum(d.currency_amount * case when d."userId" = $1 then 1 else 0 end))
+                    cast(sum(sum(d.currency_amount * case when ut."partnerId" = $1 then 1 else 0 end))
                         over (order by date_trunc('month', d."createdAt")) as float) as "investedPersonal",
 
-                    cast(sum(sum(d.currency_amount * case when d."userId" != $1 then 1 else 0 end))
+                    cast(sum(sum(d.currency_amount * case when ut."partnerId" = $1 then 1 else 0 end))
                         over (order by date_trunc('month', d."createdAt")) as float) as "investedStructure"
                 from users_tree ut
                 inner join "deposit" d on d."userId" = ut."id"
                 group by date_trunc('month', d."createdAt")
                 order by date_trunc('month', d."createdAt")
-        `, [user.id, user.partnerId]);
+        `, [partnerId ?? user.partnerId]);
     }
 
-    async getGraphicInvestmentsByTypes(user: User): Promise<GraphicDataInvestmentsByTypesDto[]> {
+    async getGraphicInvestmentsByTypes(user: User, partnerId?: string): Promise<GraphicDataInvestmentsByTypesDto[]> {
         return await this.usersRepo.query(
             `
                 select
@@ -173,9 +173,10 @@ export class ReferralsService {
                         over (order by date_trunc('month', c."createdAt")) as float) as "passiveInvestments"
 
                 from "calculation" c
-                where c.status != 'nulled' and c."userId" = $1
+                inner join "user" u on c."userId" = u."id"
+                where c.status != 'nulled' and u."partnerId" = $1
                 group by date_trunc('month', c."createdAt")
                 order by date_trunc('month', c."createdAt")
-        `, [user.id]);
+        `, [partnerId ?? user.partnerId]);
     }
 }

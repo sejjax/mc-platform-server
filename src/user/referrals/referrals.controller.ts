@@ -36,17 +36,26 @@ export class ReferralsController {
     }
 
     @Get('/graphic/invitedUsers')
-    async getGraphicInvitedUsers(@AuthUser() user: User): Promise<GraphicDataInvitedUsersDto[]> {
-        return await this.referralsService.getGraphicInvitedUsers(user);
+    async getGraphicInvitedUsers(
+        @AuthUser() user: User,
+        @Query('partnerId') partnerId?: string
+    ): Promise<GraphicDataInvitedUsersDto[]> {
+        return await this.referralsService.getGraphicInvitedUsers(user, partnerId);
     }
 
     @Get('/graphic/investedFunds')
-    async getGraphicInvestedFunds(@AuthUser() user: User): Promise<GraphicDataInvestedFundsDto[]> {
-        return await this.referralsService.getGraphicInvestedFunds(user);
+    async getGraphicInvestedFunds(
+        @AuthUser() user: User,
+        @Query('partnerId') partnerId?: string
+    ): Promise<GraphicDataInvestedFundsDto[]> {
+        return await this.referralsService.getGraphicInvestedFunds(user, partnerId);
     }
 
     @Get('/graphic/investmentsByTypes')
-    async getGraphicInvestmentsByTypes(@AuthUser() user: User): Promise<GraphicDataInvestmentsByTypesDto[]> {
-        return await this.referralsService.getGraphicInvestmentsByTypes(user);
+    async getGraphicInvestmentsByTypes(
+        @AuthUser() user: User,
+        @Query('partnerId') partnerId?: string
+    ): Promise<GraphicDataInvestmentsByTypesDto[]> {
+        return await this.referralsService.getGraphicInvestmentsByTypes(user, partnerId);
     }
 }
